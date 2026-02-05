@@ -2,7 +2,7 @@ import User from "../../../Db/models/user_model.js";
 import Parent from "../../../Db/models/parent_model.js";
 import Child from "../../../Db/models/child_model.js";
 import Token from "../../../Db/models/token_model.js";
-import Randomstring, { generate } from "randomstring";
+import Randomstring from "randomstring";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../../utils/sendEmail.js";
