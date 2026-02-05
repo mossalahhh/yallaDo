@@ -7,6 +7,7 @@ import {
   login,
   forgetPassword,
   resetPassword,
+  resendCode,
 } from "./auth_controller.js";
 import {
   registerSchema,
@@ -14,6 +15,7 @@ import {
   loginSchema,
   forgetPasswordSchema,
   resetPasswordSchema,
+  resendCodeSchema,
 } from "./auth_validation.js";
 
 const router = Router();
@@ -39,4 +41,7 @@ router.patch(
   isValid(resetPasswordSchema),
   catchErorr(resetPassword),
 );
+
+router.patch("/resend-code", isValid(resendCodeSchema), catchErorr(resendCode));
+
 export default router;

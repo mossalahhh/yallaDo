@@ -2,7 +2,7 @@ import User from "../../../Db/models/user_model.js";
 import Parent from "../../../Db/models/parent_model.js";
 import Child from "../../../Db/models/child_model.js";
 import Token from "../../../Db/models/token_model.js";
-import Randomstring from "randomstring";
+import Randomstring, { generate } from "randomstring";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../../utils/sendEmail.js";
@@ -228,6 +228,57 @@ export const resetPassword = async (req, res, next) => {
   });
 };
 
-//Todo
+//############################################################################
+//                           resend code
+//############################################################################
+export const resendCode = async (req, res, next) => {
+  const { email, type } = req.body;
+
+  const code = Randomstring.generate({
+    length: 5,
+    charset: "numeric",
+  });
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new Error("Invalid Email", { cause: 404 }));
+  }
+
+  let send;
+  const expiresAt = Date.now() + 10 * 60 * 1000;
+
+  if (type === "activationCode") {
+    user.activationCode = code;
+    user.activationCodeExpires = expiresAt;
+
+    await user.save();
+
+    send = await sendEmail({
+      to: email,
+      subject: "Confirmation Email",
+      html: confirmationTemp(code),
+    });
+  } else if (type === "forgetPassword") {
+    user.forgetCode = code;
+    user.forgetCodeExpires = expiresAt;
+
+    await user.save();
+
+    send = await sendEmail({
+      to: email,
+      subject: "Reset Password Code",
+      html: resetPasswordTemp(code),
+    });
+  } else {
+    return next(new Error("Invalid type parameter", { cause: 400 }));
+  }
+
+  if (!send) {
+    return next(new Error("Failed to send email", { cause: 500 }));
+  }
+
+  return res.json({ success: true, message: "Code sent to your email" });
+};
+
+//TODo
 //create complete child && parent profile
-//create resend code for reset password or email verfecation

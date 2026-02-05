@@ -38,3 +38,10 @@ export const resetPasswordSchema = joi
     newPassword: joi.string(),
   })
   .options({ presence: "required" });
+
+export const resendCodeSchema = joi
+  .object({
+    email: joi.string().email(),
+    type: joi.string().valid("forgetPassword", "activationCode"),
+  })
+  .options({ presence: "required" });
