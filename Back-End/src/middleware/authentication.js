@@ -6,7 +6,7 @@ import { catchErorr } from "../utils/catchErorr.js";
 export const isAuthenticated = catchErorr(async (req, res, next) => {
   let token = req.headers["authorization"];
 
-  if (!token || !token.startsWith(process.env.BEARER_TOKEN || "Bearer")) {
+  if (!token || !token.startsWith(process.env.BEARER_TOKEN)) {
     return next(new Error("Valid token is required!", { cause: 401 }));
   }
 
