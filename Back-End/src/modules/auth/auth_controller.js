@@ -33,7 +33,7 @@ export const register = async (req, res, next) => {
   console.log("after hash");
 
   const activationCode = Randomstring.generate({
-    length: 5,
+    length: 6,
     charset: "numeric",
   });
 
@@ -169,7 +169,7 @@ export const forgetPassword = async (req, res, next) => {
   }
 
   const code = Randomstring.generate({
-    length: 5,
+    length: 6,
     charset: "numeric",
   });
 
@@ -235,7 +235,7 @@ export const resendCode = async (req, res, next) => {
   const { email, type } = req.body;
 
   const code = Randomstring.generate({
-    length: 5,
+    length: 6,
     charset: "numeric",
   });
 
