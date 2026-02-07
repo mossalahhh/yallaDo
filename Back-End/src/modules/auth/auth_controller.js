@@ -280,5 +280,24 @@ export const resendCode = async (req, res, next) => {
   return res.json({ success: true, message: "Code sent to your email" });
 };
 
+//############################################################################
+//                                logout
+//############################################################################
+
+export const logout = async (req, res, next) => {
+  const { authorization } = req.headers;
+
+  const token = authorization.split(process.env.BEARER_TOKEN)[1].trim();
+
+  const deleteToken = await Token.findOneAndDelete({ token });
+
+  if (!deleteToken) {
+    return next(
+      new Error("You already logged out or token is invalid", { cause: 400 }),
+    );
+  }
+
+  return res.json({ success: true, message: "logged out" });
+};
 //TODo
 //create complete child && parent profile

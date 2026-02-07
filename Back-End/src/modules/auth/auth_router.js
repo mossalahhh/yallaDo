@@ -8,6 +8,7 @@ import {
   forgetPassword,
   resetPassword,
   resendCode,
+  logout,
 } from "./auth_controller.js";
 import {
   registerSchema,
@@ -17,6 +18,7 @@ import {
   resetPasswordSchema,
   resendCodeSchema,
 } from "./auth_validation.js";
+import { isAuthenticated } from "../../middleware/authentication.js";
 
 const router = Router();
 
@@ -43,5 +45,7 @@ router.patch(
 );
 
 router.patch("/resend-code", isValid(resendCodeSchema), catchErorr(resendCode));
+
+router.delete("/logout", isAuthenticated, catchErorr(logout));
 
 export default router;
