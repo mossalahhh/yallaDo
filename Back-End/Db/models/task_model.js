@@ -1,6 +1,6 @@
 import mongoose, { model, Schema, Types } from "mongoose";
 
-export const taskSchema = new Schema(
+const taskSchema = new Schema(
   {
     title: {
       type: String,
