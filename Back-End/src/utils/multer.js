@@ -1,0 +1,24 @@
+import multer, { diskStorage } from "multer";
+
+const validationImg = {
+  images: [
+    "image/apng",
+    "image/avif",
+    "image/bmp",
+    "image/vnd.microsoft.icon",
+    "image/jpeg",
+    "image/png",
+    "image/svg+xml",
+    "image/webp",
+  ],
+};
+
+export const fileUpload = (filterArray) => {
+  const fileFilter = (req, res, cb) => {
+    if (!filterArray.includes(fileFilter.mimetype)) {
+      return cb(new Error("invalid img type"), false);
+    }
+    return cb(null, true);
+  };
+  return multer({ storage: diskStorage({}), fileFilter });
+};
