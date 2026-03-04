@@ -9,7 +9,7 @@ export const registerSchema = joi
     password: joi.string(),
     confirmPassword: joi.string().valid(joi.ref("password")),
     gender: joi.string().valid("male", "female"),
-    role: joi.string().valid("parent", "chile"),
+    role: joi.string().valid("parent", "child"),
   })
   .options({ presence: "required" });
 
