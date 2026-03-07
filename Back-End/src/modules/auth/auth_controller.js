@@ -92,10 +92,11 @@ export const register = async (req, res, next) => {
 //############################################################################
 
 export const confirmEmail = async (req, res, next) => {
-  const { activationCode } = req.body;
+  const { activationCode, email } = req.body;
   //find user by code , expired date and update them
   const user = await User.findOneAndUpdate(
     {
+      email,
       activationCode,
       activationCodeExpires: { $gt: Date.now() },
     },
@@ -199,7 +200,7 @@ export const forgetPassword = async (req, res, next) => {
 //############################################################################
 
 export const resetPassword = async (req, res, next) => {
-  const { newPassword, resetCode } = req.body;
+  const { newPassword, resetCode, email } = req.body;
   //hash for new password
 
   const hashPassword = bcrypt.hashSync(
@@ -208,6 +209,7 @@ export const resetPassword = async (req, res, next) => {
   );
   const user = await User.findOneAndUpdate(
     {
+      email,
       forgetCode: resetCode,
       forgetCodeExpires: { $gt: Date.now() },
     },

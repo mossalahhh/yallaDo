@@ -22,29 +22,29 @@ import { isAuthenticated } from "../../middleware/authentication.js";
 
 const router = Router();
 
-router.post("/signup", isValid(registerSchema), catchErorr(register));
+router.post("/register", isValid(registerSchema), catchErorr(register));
 
-router.patch(
-  "/confirm-email",
+router.post(
+  "/verify-email",
   isValid(confirmEmailSchema),
   catchErorr(confirmEmail),
 );
 
 router.post("/login", isValid(loginSchema), catchErorr(login));
 
-router.patch(
+router.post(
   "/forget-password",
   isValid(forgetPasswordSchema),
   catchErorr(forgetPassword),
 );
 
-router.patch(
+router.post(
   "/reset-password",
   isValid(resetPasswordSchema),
   catchErorr(resetPassword),
 );
 
-router.patch("/resend-code", isValid(resendCodeSchema), catchErorr(resendCode));
+router.post("/resend-code", isValid(resendCodeSchema), catchErorr(resendCode));
 
 router.delete("/logout", isAuthenticated, catchErorr(logout));
 
