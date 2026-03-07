@@ -15,6 +15,7 @@ export const registerSchema = joi
 
 export const confirmEmailSchema = joi
   .object({
+    email: joi.string(),
     activationCode: joi.string(),
   })
   .options({ presence: "required" });
@@ -34,6 +35,7 @@ export const forgetPasswordSchema = joi
 
 export const resetPasswordSchema = joi
   .object({
+    email: joi.string(),
     resetCode: joi.string(),
     newPassword: joi.string(),
   })

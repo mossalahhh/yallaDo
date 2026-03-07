@@ -1,6 +1,6 @@
 import multer, { diskStorage } from "multer";
 
-const validationImg = {
+export const validationImg = {
   images: [
     "image/apng",
     "image/avif",
