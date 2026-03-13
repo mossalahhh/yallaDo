@@ -14,8 +14,8 @@ export const validationImg = {
 };
 
 export const fileUpload = (filterArray) => {
-  const fileFilter = (req, res, cb) => {
-    if (!filterArray.includes(fileFilter.mimetype)) {
+  const fileFilter = (req, file, cb) => {
+    if (!filterArray.includes(file.mimetype)) {
       return cb(new Error("invalid img type"), false);
     }
     return cb(null, true);
