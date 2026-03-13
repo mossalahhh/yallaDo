@@ -1,5 +1,10 @@
 import mongoose, { Schema, model } from "mongoose";
 
+export const DEFAULT_PROFILE_PIC = {
+  url: "https://res.cloudinary.com/dyiwhfw9j/image/upload/v1768753015/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69_ii4edj.jpg",
+  id: "360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69_ii4edj",
+};
+
 const userSchema = new Schema(
   {
     name: {
@@ -61,12 +66,11 @@ const userSchema = new Schema(
     profilePic: {
       url: {
         type: String,
-        default:
-          "https://res.cloudinary.com/dyiwhfw9j/image/upload/v1768753015/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69_ii4edj.jpg",
+        default: DEFAULT_PROFILE_PIC.url,
       },
       id: {
         type: String,
-        default: "360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69_ii4edj",
+        default: DEFAULT_PROFILE_PIC.id,
       },
     },
   },
