@@ -1,14 +1,16 @@
 import User, { DEFAULT_PROFILE_PIC } from "../../../Db/models/user_model.js";
+import Parent from "../../../Db/models/parent_model.js";
+import Child from "../../../Db/models/child_model.js";
 import cloudinary from "../../utils/cloudinary.js";
 
 export const profilePic = async (req, res, next) => {
   const user = await User.findById(req.user._id);
   if (!user) {
-    return next(new Error("user not found", { cause: 403 }));
+    return next(new Error("user not found", { cause: 404 }));
   }
 
   if (!req.file) {
-    return next(new Error("File Image is Required", { cause: 403 }));
+    return next(new Error("File Image is Required", { cause: 400 }));
   }
 
   const { secure_url, public_id } = await cloudinary.uploader.upload(
@@ -29,7 +31,7 @@ export const profilePic = async (req, res, next) => {
 export const deleteProfilePic = async (req, res, next) => {
   const user = await User.findById(req.user._id);
   if (!user) {
-    return next(new Error("user not found", { cause: 403 }));
+    return next(new Error("user not found", { cause: 404 }));
   }
 
   const currentProfilePicId = user.profilePic?.id;
@@ -45,4 +47,58 @@ export const deleteProfilePic = async (req, res, next) => {
   return res
     .status(200)
     .json({ success: true, message: "Profile picture deleted successfully" });
+};
+
+//get profile date (children + parents)
+export const myProfile = async (req, res, next) => {
+  const { _id, role } = req.user;
+
+  let profile;
+  if (role === "parent") {
+    profile = await Parent.findOne({ userId: _id })
+      .select("-__v -updatedAt")
+      .populate({
+        path: "userId",
+        select: "name email profilePic userName",
+      })
+      .populate({
+        path: "children",
+        select: "_id",
+      });
+  } else {
+    profile = await Child.findOne({ userId: _id })
+      .select("-__v -updatedAt -totalPoints -spentPoints")
+      .populate({
+        path: "userId",
+        select: "name email profilePic userName",
+      })
+      .populate({
+        path: "parents",
+        select: "_id ",
+      });
+  }
+
+  if (!profile) {
+    return next(new Error("Profile not found", { cause: 404 }));
+  }
+
+  const responseProfile = {
+    _id: profile._id,
+    user: {
+      _id: profile.userId._id,
+      userName: profile.userId.userName,
+      name: profile.userId.name,
+      email: profile.userId.email,
+      avatar: profile.userId.profilePic,
+    },
+    role,
+  };
+
+  //parents or child coount based on role
+  if (role === "parent") {
+    responseProfile.childCount = profile.children ? profile.children.length : 0;
+  } else {
+    responseProfile.parentCount = profile.parents ? profile.parents.length : 0;
+  }
+  return res.status(200).json({ success: true, profile: responseProfile });
 };
