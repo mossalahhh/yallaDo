@@ -49,7 +49,7 @@ export const deleteProfilePic = async (req, res, next) => {
     .json({ success: true, message: "Profile picture deleted successfully" });
 };
 
-//get profile date (children + parents)
+//get profile data (children + parents)
 export const myProfile = async (req, res, next) => {
   const { _id, role } = req.user;
 
@@ -94,7 +94,7 @@ export const myProfile = async (req, res, next) => {
     role,
   };
 
-  //parents or child coount based on role
+  //parents or child count based on role
   if (role === "parent") {
     responseProfile.childCount = profile.children ? profile.children.length : 0;
   } else {
