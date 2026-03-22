@@ -96,9 +96,32 @@ export const myProfile = async (req, res, next) => {
 
   //parents or child count based on role
   if (role === "parent") {
-    responseProfile.childCount = profile.children ? profile.children.length : 0;
+    responseProfile.childrenCount = profile.children
+      ? profile.children.length
+      : 0;
   } else {
-    responseProfile.parentCount = profile.parents ? profile.parents.length : 0;
+    responseProfile.parentsCount = profile.parents ? profile.parents.length : 0;
   }
   return res.status(200).json({ success: true, profile: responseProfile });
+};
+
+//update basic information (name)
+export const updateProfile = async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { name: req.body.name },
+    { new: true },
+  );
+
+  if (!user) {
+    return next(new Error("user not found", { cause: 404 }));
+  }
+
+  return res
+    .status(200)
+    .json({
+      success: true,
+      message: "Name changed successfully",
+      results: user.name,
+    });
 };
