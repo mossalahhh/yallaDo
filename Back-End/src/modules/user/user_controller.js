@@ -2,6 +2,10 @@ import User, { DEFAULT_PROFILE_PIC } from "../../../Db/models/user_model.js";
 import Parent from "../../../Db/models/parent_model.js";
 import Child from "../../../Db/models/child_model.js";
 import cloudinary from "../../utils/cloudinary.js";
+import bcrypt from "bcryptjs";
+import { sendEmail } from "../../utils/sendEmail.js";
+import { changeEmailTemp } from "../../utils/html_template.js";
+import Randomstring from "randomstring";
 
 export const profilePic = async (req, res, next) => {
   const user = await User.findById(req.user._id);
@@ -117,11 +121,63 @@ export const updateProfile = async (req, res, next) => {
     return next(new Error("user not found", { cause: 404 }));
   }
 
-  return res
-    .status(200)
-    .json({
-      success: true,
-      message: "Name changed successfully",
-      results: user.name,
-    });
+  return res.status(200).json({
+    success: true,
+    message: "Name changed successfully",
+    results: user.name,
+  });
+};
+
+//change email
+export const changeEmail = async (req, res, next) => {
+  //new email && password from body
+  const { newEmail, password } = req.body;
+  //get user from db
+
+  const user = await User.findById(req.user._id).select("+password");
+
+  const emailExists = await User.findOne({ email: newEmail });
+  if (emailExists) {
+    return next(new Error("Email already in use", { cause: 409 }));
+  }
+
+  if (user.email === newEmail) {
+    return next(
+      new Error("This is already your current email", { cause: 400 }),
+    );
+  }
+
+  //ensure from password to verify user
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    return next(new Error("Invalid Password", { cause: 409 }));
+  }
+
+  //generate code
+  const code = Randomstring.generate({
+    length: 6,
+    charset: "numeric",
+  });
+  //send gmail code to changeEmail
+
+  const send = await sendEmail({
+    to: newEmail,
+    subject: "Change Email",
+    html: changeEmailTemp(code),
+  });
+
+  if (!send) {
+    return next(new Error("invalid Email", { cause: 403 }));
+  }
+  //store email in pending emails Db
+  user.pendingEmail = newEmail;
+  user.emailChangeCode = code;
+  //update expire date
+  user.emailChangeCodeExpires = Date.now() + 10 * 60 * 1000;
+
+  await user.save();
+
+  //send res
+  return res.status(200).json({ success: true, message: "Check Your Email" });
 };

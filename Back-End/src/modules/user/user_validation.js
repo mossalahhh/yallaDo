@@ -5,3 +5,10 @@ export const updateProfileSchema = joi
     name: joi.string(),
   })
   .options({ presence: "required" });
+
+export const changeEmailSechma = joi
+  .object({
+    newEmail: joi.string().email(),
+    password: joi.string(),
+  })
+  .options({ presence: "required" });

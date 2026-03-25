@@ -54,6 +54,10 @@ const userSchema = new Schema(
       default: false,
     },
 
+    pendingEmail: String,
+    emailChangeCode: String,
+    emailChangeCodeExpires: Date,
+
     forgetCode: String,
     forgetCodeExpires: Date,
 
