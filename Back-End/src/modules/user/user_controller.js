@@ -188,9 +188,7 @@ export const confirmEmail = async (req, res, next) => {
 
   const user = await User.findById(req.user._id);
   if (code !== user.emailChangeCode) {
-    if (!user || !user.emailChangeCode) {
-      return next(new Error("Invalid code", { cause: 400 }));
-    }
+    return next(new Error("Invalid code", { cause: 400 }));
   }
   if (!user || !user.emailChangeCode) {
     return next(new Error("Invalid request", { cause: 400 }));
