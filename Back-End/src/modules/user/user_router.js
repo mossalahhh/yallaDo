@@ -2,7 +2,11 @@ import { Router } from "express";
 import { isAuthenticated } from "../../middleware/authentication.js";
 import { isValid } from "../../middleware/validation_middleware.js";
 import { fileUpload, validationImg } from "../../utils/multer.js";
-import { updateProfileSchema, changeEmailSechma } from "./user_validation.js";
+import {
+  updateProfileSchema,
+  changeEmailScehma,
+  cnfirmEmailScehma,
+} from "./user_validation.js";
 import { catchErorr } from "../../utils/catchErorr.js";
 import {
   profilePic,
@@ -10,6 +14,7 @@ import {
   myProfile,
   updateProfile,
   changeEmail,
+  confirmEmail,
 } from "./user_controller.js";
 
 const router = Router();
@@ -32,10 +37,18 @@ router.patch(
   catchErorr(updateProfile),
 );
 
-router.patch(
+router.post(
   "/change-email",
   isAuthenticated,
-  isValid(changeEmailSechma),
+  isValid(changeEmailScehma),
   catchErorr(changeEmail),
 );
+
+router.patch(
+  "/confirm-email",
+  isAuthenticated,
+  isValid(cnfirmEmailScehma),
+  catchErorr(confirmEmail),
+);
+
 export default router;

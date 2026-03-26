@@ -6,9 +6,13 @@ export const updateProfileSchema = joi
   })
   .options({ presence: "required" });
 
-export const changeEmailSechma = joi
+export const changeEmailScehma = joi
   .object({
     newEmail: joi.string().email(),
     password: joi.string(),
   })
   .options({ presence: "required" });
+
+export const cnfirmEmailScehma = joi.object({
+  code: joi.string(),
+});

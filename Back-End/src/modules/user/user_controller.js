@@ -181,3 +181,34 @@ export const changeEmail = async (req, res, next) => {
   //send res
   return res.status(200).json({ success: true, message: "Check Your Email" });
 };
+
+//confirm new email
+export const confirmEmail = async (req, res, next) => {
+  const { code } = req.body;
+
+  const user = await User.findById(req.user._id);
+  if (code !== user.emailChangeCode) {
+    if (!user || !user.emailChangeCode) {
+      return next(new Error("Invalid code", { cause: 400 }));
+    }
+  }
+  if (!user || !user.emailChangeCode) {
+    return next(new Error("Invalid request", { cause: 400 }));
+  }
+
+  // check expire
+  if (user.emailChangeCodeExpires < Date.now()) {
+    return next(new Error("Code expired", { cause: 400 }));
+  }
+
+  user.email = user.pendingEmail;
+  user.emailChangeCode = undefined;
+  user.emailChangeCodeExpires = undefined;
+  user.pendingEmail = undefined;
+
+  await user.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Email Changed Successfully" });
+};
