@@ -210,3 +210,28 @@ export const confirmEmail = async (req, res, next) => {
     .status(200)
     .json({ success: true, message: "Email Changed Successfully" });
 };
+
+//update PASSWORD if user know current password
+export const updatePassword = async (req, res, next) => {
+  //data
+  const { oldPassword, newPassword } = req.body;
+  //find user
+  const user = await User.findById(req.user._id).select("+password");
+
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+  if (!isMatch) {
+    return next(new Error("Incorrect Password", { cause: 400 }));
+  }
+
+  const hashPassword = bcrypt.hashSync(
+    newPassword,
+    Number(process.env.SALT_ROUND),
+  );
+
+  user.password = hashPassword;
+  await user.save();
+  return res
+    .status(200)
+    .json({ success: true, message: "Password Changed Successfully" });
+};

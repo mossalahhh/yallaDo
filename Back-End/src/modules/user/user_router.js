@@ -6,6 +6,7 @@ import {
   updateProfileSchema,
   changeEmailScehma,
   cnfirmEmailScehma,
+  updatePasswordScehma,
 } from "./user_validation.js";
 import { catchErorr } from "../../utils/catchErorr.js";
 import {
@@ -15,6 +16,7 @@ import {
   updateProfile,
   changeEmail,
   confirmEmail,
+  updatePassword,
 } from "./user_controller.js";
 
 const router = Router();
@@ -49,6 +51,13 @@ router.patch(
   isAuthenticated,
   isValid(cnfirmEmailScehma),
   catchErorr(confirmEmail),
+);
+
+router.patch(
+  "/update-password",
+  isAuthenticated,
+  isValid(updatePasswordScehma),
+  catchErorr(updatePassword),
 );
 
 export default router;

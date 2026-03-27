@@ -13,6 +13,16 @@ export const changeEmailScehma = joi
   })
   .options({ presence: "required" });
 
-export const cnfirmEmailScehma = joi.object({
-  code: joi.string(),
-});
+export const cnfirmEmailScehma = joi
+  .object({
+    code: joi.string(),
+  })
+  .options({ presence: "required" });
+
+export const updatePasswordScehma = joi
+  .object({
+    oldPassword: joi.string(),
+    newPassword: joi.string(),
+    confirmPassword: joi.string().valid(joi.ref("newPassword")),
+  })
+  .options({ presence: "required" });
