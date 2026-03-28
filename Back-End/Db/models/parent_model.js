@@ -21,8 +21,9 @@ const parentSchema = new Schema(
     inviteCode: {
       code: {
         type: String,
-        unique: true,
+        sparse: true,
       },
+      expiresAt: Date,
       maxUses: { type: Number, default: 5 },
       usedCount: { type: Number, default: 0 },
     },
