@@ -2,6 +2,7 @@ import morgan from "morgan";
 import authRouer from "./modules/auth/auth_router.js";
 import userRouer from "./modules/user/user_router.js";
 import parentRouer from "./modules/parent/parent_router.js";
+import childRouer from "./modules/child/child_router.js";
 
 export const appRouter = (app, express) => {
   if (process.env.NODE_ENV === "dev") {
@@ -13,6 +14,7 @@ export const appRouter = (app, express) => {
   app.use("/auth", authRouer);
   app.use("/user", userRouer);
   app.use("/parent", parentRouer);
+  app.use("/child", childRouer);
 
   //handle page not found error
   app.use((req, res, next) => {
