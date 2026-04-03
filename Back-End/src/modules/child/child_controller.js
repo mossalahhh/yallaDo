@@ -6,12 +6,14 @@ export const linkAccounts = async (req, res, next) => {
   //get data
   const { code } = req.body;
   //transaction session
-  const session = mongoose.startSession();
+  const session = await mongoose.startSession();
   try {
-    await session.startTransaction;
+    await session.startTransaction();
 
     //find parent
-    const parent = await Parent.findOne({ "inviteCode.code": code });
+    const parent = await Parent.findOne({ "inviteCode.code": code }).session(
+      session,
+    );
     //validation on parent if not found
     if (!parent || !parent.inviteCode.code) {
       return next(new Error("Invalid request", { cause: 400 }));
@@ -31,7 +33,9 @@ export const linkAccounts = async (req, res, next) => {
       return next(new Error("Invite code usage limit reached", { cause: 400 }));
     }
     //child profile
-    const child = await Child.findOne({ userId: req.user._id });
+    const child = await Child.findOne({ userId: req.user._id }).session(
+      session,
+    );
     if (!child) {
       return next(new Error("Child profile not found", { cause: 404 }));
     }
@@ -42,6 +46,7 @@ export const linkAccounts = async (req, res, next) => {
         children: { $ne: child._id }, //if child not exist do this update
       },
       { $push: { children: child._id }, $inc: { "inviteCode.usedCount": 1 } },
+      { session },
     );
 
     if (result.modifiedCount === 0) {
@@ -51,18 +56,19 @@ export const linkAccounts = async (req, res, next) => {
     await Child.updateOne(
       { _id: child._id },
       { $push: { parents: parent._id } },
+      { session },
     );
 
-    await session.commitTransaction;
+    await session.commitTransaction();
     //send response
     return res.status(200).json({
       success: true,
       message: "Accounts Linked Successfully",
     });
   } catch (error) {
-    await session.abortTransaction;
+    await session.abortTransaction();
     next(error);
   } finally {
-    await session.endSession;
+    await session.endSession();
   }
 };
