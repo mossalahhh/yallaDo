@@ -42,3 +42,18 @@ export const inviteCode = async (req, res, next) => {
     results: codeRes,
   });
 };
+
+export const myChildren = async (req, res, next) => {
+  const parent = await Parent.findOne({ userId: req.user._id }).populate({
+    path: "children",
+    select: "age totalPoints",
+    populate: {
+      path: "userId",
+      select: " -_id name",
+    },
+  });
+  if (!parent) {
+    return next(new Error("Parent profile not found", { cause: 404 }));
+  }
+  return res.status(200).json({ success: true, results: parent.children });
+};
