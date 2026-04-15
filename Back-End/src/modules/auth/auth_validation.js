@@ -10,6 +10,7 @@ export const registerSchema = joi
     confirmPassword: joi.string().valid(joi.ref("password")),
     gender: joi.string().valid("male", "female"),
     role: joi.string().valid("parent", "child"),
+    dateOfBirth: joi.date(),
   })
   .options({ presence: "required" });
 

@@ -63,7 +63,7 @@ export const myProfile = async (req, res, next) => {
       .select("-__v -updatedAt")
       .populate({
         path: "userId",
-        select: "name email profilePic userName",
+        select: "name email profilePic userName dateOfBirth",
       })
       .populate({
         path: "children",
@@ -74,7 +74,7 @@ export const myProfile = async (req, res, next) => {
       .select("-__v -updatedAt -totalPoints -spentPoints")
       .populate({
         path: "userId",
-        select: "name email profilePic userName",
+        select: "name email profilePic userName  dateOfBirth",
       })
       .populate({
         path: "parents",
@@ -94,6 +94,7 @@ export const myProfile = async (req, res, next) => {
       name: profile.userId.name,
       email: profile.userId.email,
       avatar: profile.userId.profilePic,
+      age: profile.userId.age,
     },
     role,
   };

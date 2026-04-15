@@ -16,7 +16,8 @@ import {
 //############################################################################
 
 export const register = async (req, res, next) => {
-  const { name, userName, email, password, gender, role } = req.body;
+  const { name, userName, email, password, gender, role, dateOfBirth } =
+    req.body;
   console.log("Body ok");
   //check if user exist
   const isUser = await User.findOne({ email });
@@ -44,6 +45,7 @@ export const register = async (req, res, next) => {
     password: hashPassword,
     gender,
     role,
+    dateOfBirth,
     activationCode,
     activationCodeExpires: Date.now() + 10 * 60 * 1000,
   });

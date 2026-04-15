@@ -39,10 +39,7 @@ const userSchema = new Schema(
       enum: ["male", "female"],
       required: true,
     },
-    age: {
-      type: Number,
-      min: 5,
-    },
+    dateOfBirth: Date,
     role: {
       type: String,
       enum: ["parent", "child"],
@@ -82,10 +79,29 @@ const userSchema = new Schema(
       },
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
 );
 
 userSchema.index({ role: 1 });
+
+userSchema.virtual("age").get(function () {
+  const today = new Date();
+  const birthDate = new Date(this.dateOfBirth);
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+
+  const m = today.getMonth() - birthDate.getMonth();
+
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age;
+});
 
 const User = mongoose.models.User || model("User", userSchema);
 
