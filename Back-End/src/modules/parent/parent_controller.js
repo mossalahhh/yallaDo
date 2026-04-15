@@ -49,7 +49,7 @@ export const myChildren = async (req, res, next) => {
     select: "age totalPoints",
     populate: {
       path: "userId",
-      select: " -_id name",
+      select: " -_id name dateOfBirth",
     },
   });
   if (!parent) {
