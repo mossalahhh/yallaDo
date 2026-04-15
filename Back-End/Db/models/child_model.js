@@ -8,10 +8,6 @@ const childSchema = new Schema(
       required: true,
       unique: true,
     },
-    age: {
-      type: Number,
-      min: 5,
-    },
     parents: [
       {
         type: Types.ObjectId,

@@ -39,6 +39,10 @@ const userSchema = new Schema(
       enum: ["male", "female"],
       required: true,
     },
+    age: {
+      type: Number,
+      min: 5,
+    },
     role: {
       type: String,
       enum: ["parent", "child"],

@@ -55,5 +55,13 @@ export const myChildren = async (req, res, next) => {
   if (!parent) {
     return next(new Error("Parent profile not found", { cause: 404 }));
   }
-  return res.status(200).json({ success: true, results: parent.children });
+
+  const children = parent.children.map((child) => ({
+    _id: child._id,
+    name: child.userId.name,
+    age: child.userId.age,
+    totalPoints: child.totalPoints,
+  }));
+
+  return res.status(200).json({ success: true, results: children });
 };
