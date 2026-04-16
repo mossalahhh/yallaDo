@@ -8,7 +8,7 @@ export const linkAccounts = async (req, res, next) => {
   //transaction session
   const session = await mongoose.startSession();
   try {
-    session.startTransaction();
+    await session.startTransaction();
 
     //find parent
     const parent = await Parent.findOne({ "inviteCode.code": code }).session(

@@ -1,5 +1,7 @@
+import Child from "../../../Db/models/child_model.js";
 import Parent from "../../../Db/models/parent_model.js";
 import RandomString from "randomstring";
+import mongoose from "mongoose";
 
 export const inviteCode = async (req, res, next) => {
   //generate code
@@ -64,4 +66,46 @@ export const myChildren = async (req, res, next) => {
   }));
 
   return res.status(200).json({ success: true, results: children });
+};
+
+export const unLinkChild = async (req, res, next) => {
+  const { childId } = req.params;
+  const session = await mongoose.startSession();
+  try {
+    await session.startTransaction();
+
+    const child = await Child.findById(childId).session(session);
+
+    if (!child) {
+      return next(new Error("child profile not found", { cause: 404 }));
+    }
+
+    const parent = await Parent.findOneAndUpdate(
+      { userId: req.user._id, children: childId },
+      { $pull: { children: child._id } },
+      { new: true, session },
+    );
+
+    if (!parent) {
+      return next(new Error("Child not linked to this parent", { cause: 400 }));
+    }
+
+    await Child.findByIdAndUpdate(
+      childId,
+      { $pull: { parents: parent._id } },
+      { new: true, session },
+    );
+
+    await session.commitTransaction();
+
+    return res.status(200).json({
+      success: true,
+      message: "Child Unlinked successfully ",
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    next(error);
+  } finally {
+    await session.endSession();
+  }
 };
