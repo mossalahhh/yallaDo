@@ -6,3 +6,12 @@ export const unlinkSchema = joi
     childId: joi.string().custom(isValidObject).required(),
   })
   .options({ presence: "required" });
+
+export const pointsSchema = joi
+  .object({
+    points: joi.number(),
+    type: joi.string().valid("add", "remove"),
+    reason: joi.string(),
+    childId: joi.string().custom(isValidObject),
+  })
+  .options({ presence: "required" });

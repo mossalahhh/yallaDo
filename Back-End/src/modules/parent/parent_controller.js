@@ -1,5 +1,6 @@
 import Child from "../../../Db/models/child_model.js";
 import Parent from "../../../Db/models/parent_model.js";
+import History from "../../../Db/models/history_mode.js";
 import RandomString from "randomstring";
 import mongoose from "mongoose";
 
@@ -72,7 +73,7 @@ export const unLinkChild = async (req, res, next) => {
   const { childId } = req.params;
   const session = await mongoose.startSession();
   try {
-    await session.startTransaction();
+    session.startTransaction();
 
     const child = await Child.findById(childId).session(session);
 
@@ -102,6 +103,105 @@ export const unLinkChild = async (req, res, next) => {
       success: true,
       message: "Child Unlinked successfully ",
     });
+  } catch (error) {
+    await session.abortTransaction();
+    next(error);
+  } finally {
+    await session.endSession();
+  }
+};
+
+export const bounsPoints = async (req, res, next) => {
+  const { points, type, reason } = req.body;
+  const { childId } = req.params;
+
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    //parent profile
+    const parent = await Parent.findOne({ userId: req.user._id }).session(
+      session,
+    );
+    if (!parent) {
+      return next(new Error("Parent profile not found", { cause: 404 }));
+    }
+
+    //ensure this child linked to this parent
+    const child = await Child.findOne({
+      _id: childId,
+      parents: parent._id,
+    }).session(session);
+
+    if (!child) {
+      return next(new Error("Child not found or not linked", { cause: 404 }));
+    }
+
+    // Make sure the points are not negative
+    if (points <= 0) {
+      return next(new Error("Points Must be Greater than 0", { cause: 400 }));
+    }
+
+    //make sure from number of points
+    if (type === "remove" && child.totalPoints < points) {
+      return next(new Error("Insufficient points", { cause: 400 }));
+    }
+    //make sure from daily limits
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const totalDay = await History.aggregate([
+      {
+        $match: {
+          childId: child._id,
+          parentId: parent._id,
+          source: "manual",
+          createdAt: { $gte: today }, //greater than or equal current time
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: { $abs: "$points" } },
+        },
+      },
+    ]).session(session);
+
+    const usedPoints = totalDay[0]?.total || 0;
+
+    if (usedPoints + points > Number(process.env.DAILY_LIMIT)) {
+      return next(new Error("Daily manual points limit exceeded"));
+    }
+
+    //update points in child
+    const updatedValue = type === "add" ? points : -points;
+
+    await Child.updateOne(
+      { _id: childId },
+      {
+        $inc: { totalPoints: updatedValue },
+      },
+      { new: true, session },
+    );
+
+    //create history
+    await History.create(
+      [
+        {
+          childId: child._id,
+          parentId: parent._id,
+          points: updatedValue,
+          source: "manual",
+          type,
+          reason,
+        },
+      ],
+      { session },
+    );
+    //return res
+    await session.commitTransaction();
+
+    return res
+      .status(201)
+      .json({ success: true, message: `points ${type}ed seccessfully` });
   } catch (error) {
     await session.abortTransaction();
     next(error);
