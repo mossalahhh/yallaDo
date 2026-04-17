@@ -160,7 +160,7 @@ export const bounsPoints = async (req, res, next) => {
       {
         $group: {
           _id: null,
-          total: { $sum: { $abs: "$points" } },
+          total: { $sum: { $abs: "$points" } }, //$ to refer on points in schema
         },
       },
     ]).session(session);

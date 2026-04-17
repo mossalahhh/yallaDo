@@ -17,13 +17,30 @@ const taskSchema = new Schema(
     createdBy: {
       type: Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: "Parent",
     },
+
     assignedTo: {
       type: Types.ObjectId,
-      required: true,
-      ref: "User",
+      ref: "Child",
+      default: null,
+      required: function () {
+        return this.type === "personal";
+      },
     },
+
+    type: {
+      type: String,
+      enum: ["personal", "open"],
+      required: true,
+    },
+
+    claimedBy: {
+      type: Types.ObjectId,
+      ref: "Child",
+      default: null,
+    },
+
     points: {
       type: Number,
       min: [1, "Points cannot be negative"],
@@ -42,7 +59,7 @@ const taskSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected", "completed"],
+      enum: ["pending", "accepted", "rejected", "submitted", "completed"],
       default: "pending",
     },
     image: {
@@ -53,6 +70,18 @@ const taskSchema = new Schema(
         type: String,
       },
     },
+
+    submission: {
+      description: String,
+      images: [
+        {
+          url: String,
+          id: String,
+        },
+      ],
+      submittedAt: Date,
+    },
+
     dueDate: Date,
     completedAt: Date,
     approvedAt: Date,
