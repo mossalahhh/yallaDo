@@ -1,9 +1,9 @@
 import joi from "joi";
 import { isValidObject } from "../../middleware/validation_middleware.js";
 
-export const unlinkSchema = joi
+export const childIdSchema = joi
   .object({
-    childId: joi.string().custom(isValidObject).required(),
+    childId: joi.string().custom(isValidObject),
   })
   .options({ presence: "required" });
 
@@ -12,12 +12,6 @@ export const pointsSchema = joi
     points: joi.number(),
     type: joi.string().valid("add", "remove"),
     reason: joi.string(),
-    childId: joi.string().custom(isValidObject),
-  })
-  .options({ presence: "required" });
-
-export const detalisChildSchema = joi
-  .object({
     childId: joi.string().custom(isValidObject),
   })
   .options({ presence: "required" });

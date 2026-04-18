@@ -10,11 +10,7 @@ import {
   bounsPoints,
   detailsChild,
 } from "./parent_controller.js";
-import {
-  unlinkSchema,
-  pointsSchema,
-  detalisChildSchema,
-} from "./parent_validation.js";
+import { childIdSchema, pointsSchema } from "./parent_validation.js";
 
 const router = Router();
 
@@ -35,7 +31,7 @@ router.get(
 router.delete(
   "/:childId",
   isAuthenticated,
-  isValid(unlinkSchema),
+  isValid(childIdSchema),
   isAuthorized("parent"),
   catchErorr(unLinkChild),
 );
@@ -51,7 +47,7 @@ router.post(
 router.get(
   "/:childId/details",
   isAuthenticated,
-  isValid(detalisChildSchema),
+  isValid(childIdSchema),
   isAuthorized("parent"),
   catchErorr(detailsChild),
 );
