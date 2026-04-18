@@ -15,3 +15,9 @@ export const pointsSchema = joi
     childId: joi.string().custom(isValidObject),
   })
   .options({ presence: "required" });
+
+export const detalisChildSchema = joi
+  .object({
+    childId: joi.string().custom(isValidObject),
+  })
+  .options({ presence: "required" });

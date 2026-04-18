@@ -209,3 +209,48 @@ export const bounsPoints = async (req, res, next) => {
     await session.endSession();
   }
 };
+
+//v1 without tasks aggregation
+//todo task aggregate to show task count completed tasks.....
+export const detailsChild = async (req, res, next) => {
+  const { childId } = req.params;
+
+  const parent = await Parent.findOne({ userId: req.user._id });
+
+  if (!parent) {
+    return next(new Error("Parent profile not found", { cause: 404 }));
+  }
+
+  const child = await Child.findOne({
+    _id: childId,
+    parents: parent._id,
+  }).populate({
+    path: "userId",
+    select: "name dateOfBirth",
+  });
+
+  const lastActivity = await History.findOne({ childId: child._id }).sort({
+    createdAt: -1,
+  });
+
+  //todo task aggregate
+
+  const resObject = {
+    child: {
+      _id: child._id,
+      name: child.userId.name,
+      age: child.userId.age,
+      totalPoints: child.totalPoints,
+      spentPoints: child.spentPoints,
+    },
+    latestActivity: {
+      type: lastActivity.type,
+      source: lastActivity.source,
+      points: Math.abs(lastActivity.points),
+      createdAt: lastActivity.createdAt,
+    },
+    //todo task response
+  };
+
+  return res.status(200).json({ success: true, results: resObject });
+};
