@@ -10,11 +10,13 @@ import {
   bounsPoints,
   detailsChild,
   childHistory,
+  allHistory,
 } from "./parent_controller.js";
 import {
   childIdSchema,
   pointsSchema,
   childHistorySchema,
+  historySchema,
 } from "./parent_validation.js";
 
 const router = Router();
@@ -63,5 +65,13 @@ router.get(
   isValid(childHistorySchema),
   isAuthorized("parent"),
   catchErorr(childHistory),
+);
+
+router.get(
+  "/children-history",
+  isAuthenticated,
+  isValid(historySchema),
+  isAuthorized("parent"),
+  catchErorr(allHistory),
 );
 export default router;

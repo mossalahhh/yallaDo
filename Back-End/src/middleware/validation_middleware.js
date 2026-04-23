@@ -12,9 +12,7 @@ export const isValid = (schema) => {
   return (req, res, next) => {
     const copyReq = { ...req.body, ...req.query, ...req.params };
 
-    const validationSchema = Joi.object(schema).unknown(true);
-
-    const { error } = validationSchema.validate(copyReq, {
+    const { error } = schema.validate(copyReq, {
       abortEarly: false,
     });
 

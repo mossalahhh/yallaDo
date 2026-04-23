@@ -16,15 +16,19 @@ export const pointsSchema = joi
   })
   .options({ presence: "required" });
 
-export const childHistorySchema = {
-  params: joi.object({
-    childId: joi.string().custom(isValidObject).required(),
-  }),
-  query: joi.object({
-    page: joi.number().integer().min(1).optional(),
-    fields: joi.string().optional(),
-    //...rest paremters
-    type: joi.string().valid("add", "remove").optional(),
-    source: joi.string().valid("manual", "task", "reward").optional(),
-  }),
-};
+export const childHistorySchema = joi.object({
+  childId: joi.string().custom(isValidObject).required(),
+  page: joi.number().integer().min(1).optional(),
+  fields: joi.string().optional(),
+  //...rest paremters
+  type: joi.string().valid("add", "remove").optional(),
+  source: joi.string().valid("manual", "task", "reward").optional(),
+});
+
+export const historySchema = joi.object({
+  page: joi.number().integer().min(1).optional(),
+  fields: joi.string().optional(),
+  //...rest paremters
+  type: joi.string().valid("add", "remove").optional(),
+  source: joi.string().valid("manual", "task", "reward").optional(),
+});

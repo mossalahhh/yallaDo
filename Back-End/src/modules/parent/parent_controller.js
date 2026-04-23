@@ -262,7 +262,18 @@ export const childHistory = async (req, res, next) => {
   const history = await History.find({ childId: childId })
     .customFilter(rest)
     .customSelect(fields)
-    .paginate(page);
+    .paginate(page)
+    .sort({ createdAt: -1 });
 
+  return res.status(200).json({ success: true, history });
+};
+
+export const allHistory = async (req, res, next) => {
+  const { fields, page, ...rest } = req.query;
+  const history = await History.find()
+    .customFilter(rest)
+    .customSelect(fields)
+    .paginate(page)
+    .sort({ createdAt: -1 });
   return res.status(200).json({ success: true, history });
 };
