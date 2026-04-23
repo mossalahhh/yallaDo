@@ -1,23 +1,25 @@
 import { Types } from "mongoose";
 
+import Joi from "joi";
+
 export const isValidObject = (value, helper) => {
-  if (Types.ObjectId.isValid(value)) {
-    return true;
-  } else {
-    return helper.message("Invalid-ObjID");
-  }
+  return Types.ObjectId.isValid(value)
+    ? value
+    : helper.message("Invalid-ObjID");
 };
 
 export const isValid = (schema) => {
   return (req, res, next) => {
     const copyReq = { ...req.body, ...req.query, ...req.params };
 
-    const validationSchema = schema.validate(copyReq, { abortEearly: false });
+    const validationSchema = Joi.object(schema).unknown(true);
 
-    if (validationSchema.error) {
-      const arrayErrors = validationSchema.error.details.map(
-        (error) => error.message,
-      );
+    const { error } = validationSchema.validate(copyReq, {
+      abortEarly: false,
+    });
+
+    if (error) {
+      const arrayErrors = error.details.map((error) => error.message);
 
       return next(new Error(arrayErrors, { cause: 400 }));
     }

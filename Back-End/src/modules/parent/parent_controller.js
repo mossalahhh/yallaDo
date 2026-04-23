@@ -254,3 +254,15 @@ export const detailsChild = async (req, res, next) => {
 
   return res.status(200).json({ success: true, results: resObject });
 };
+
+export const childHistory = async (req, res, next) => {
+  const { childId } = req.params;
+  const { fields, page, ...rest } = req.query;
+
+  const history = await History.find({ childId: childId })
+    .customFilter(rest)
+    .customSelect(fields)
+    .paginate(page);
+
+  return res.status(200).json({ success: true, history });
+};

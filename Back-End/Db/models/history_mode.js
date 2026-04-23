@@ -1,4 +1,5 @@
 import mongoose, { Types, Schema, model } from "mongoose";
+import { queryHelperPlugin } from "../query_helpers.js";
 const historySchema = new Schema(
   {
     childId: {
@@ -28,6 +29,8 @@ const historySchema = new Schema(
   },
   { timestamps: true },
 );
+
+historySchema.plugin(queryHelperPlugin);
 
 const History = mongoose.models.History || model("History", historySchema);
 

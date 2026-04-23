@@ -1,4 +1,5 @@
 import mongoose, { model, Schema, Types } from "mongoose";
+import { queryHelperPlugin } from "../query_helpers.js";
 
 const taskSchema = new Schema(
   {
@@ -95,6 +96,8 @@ taskSchema.virtual("isOverdue").get(function () {
     this.dueDate && this.status !== "completed" && this.dueDate < new Date()
   );
 });
+
+taskSchema.plugin(queryHelperPlugin);
 
 taskSchema.index({ assignedTo: 1, status: 1, dueDate: 1 });
 taskSchema.index({ createdBy: 1, status: 1, createdAt: -1 });

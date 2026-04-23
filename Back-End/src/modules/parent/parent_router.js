@@ -9,8 +9,13 @@ import {
   unLinkChild,
   bounsPoints,
   detailsChild,
+  childHistory,
 } from "./parent_controller.js";
-import { childIdSchema, pointsSchema } from "./parent_validation.js";
+import {
+  childIdSchema,
+  pointsSchema,
+  childHistorySchema,
+} from "./parent_validation.js";
 
 const router = Router();
 
@@ -50,5 +55,13 @@ router.get(
   isValid(childIdSchema),
   isAuthorized("parent"),
   catchErorr(detailsChild),
+);
+
+router.get(
+  "/:childId/history",
+  isAuthenticated,
+  isValid(childHistorySchema),
+  isAuthorized("parent"),
+  catchErorr(childHistory),
 );
 export default router;
