@@ -277,3 +277,86 @@ export const allHistory = async (req, res, next) => {
     .sort({ createdAt: -1 });
   return res.status(200).json({ success: true, history });
 };
+
+export const dashborad = async (req, res, next) => {
+  //get parent
+  const parent = await Parent.findOne({ userId: req.user._id });
+  if (!parent) {
+    return next(new Error("Parent profile not found", { cause: 404 }));
+  }
+
+  //children count
+  const childrenCount = parent.children.length;
+
+  //today manual usage && totalGivenPoints
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [todayUsageAgg, totalGivenAgg, todayPoints] = await Promise.all([
+    //today manual usage
+    History.aggregate([
+      {
+        $match: {
+          parentId: parent._id,
+          source: "manual",
+          createdAt: { $gte: today },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: { $abs: "$points" } },
+        },
+      },
+    ]),
+
+    //totalGivenPoints
+    History.aggregate([
+      {
+        $match: {
+          parentId: parent._id,
+          type: "add",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: { $abs: "$points" } },
+        },
+      },
+    ]),
+
+    //totalTodayPoints
+    History.aggregate([
+      {
+        $match: {
+          parentId: parent._id,
+          type: "add",
+          createdAt: { $gte: today },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: { $abs: "$points" } },
+        },
+      },
+    ]),
+  ]);
+
+  //results of total
+  const todayManualUsage = todayUsageAgg[0]?.total || 0;
+  const totalGivenPoints = totalGivenAgg[0]?.total || 0;
+  const totalTodayPoints = todayPoints[0]?.total || 0;
+
+  //returnRes
+  return res.status(200).json({
+    success: true,
+    dashborad: {
+      childrenCount,
+      todayManualUsage,
+      totalGivenPoints,
+      totalTodayPoints,
+    },
+  });
+};

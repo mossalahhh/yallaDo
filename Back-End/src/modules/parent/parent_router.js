@@ -11,6 +11,7 @@ import {
   detailsChild,
   childHistory,
   allHistory,
+  dashborad,
 } from "./parent_controller.js";
 import {
   childIdSchema,
@@ -73,5 +74,11 @@ router.get(
   isValid(historySchema),
   isAuthorized("parent"),
   catchErorr(allHistory),
+);
+router.get(
+  "/dashboard",
+  isAuthenticated,
+  isAuthorized("parent"),
+  catchErorr(dashborad),
 );
 export default router;
