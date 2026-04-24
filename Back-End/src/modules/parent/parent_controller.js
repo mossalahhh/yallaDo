@@ -360,3 +360,28 @@ export const dashborad = async (req, res, next) => {
     },
   });
 };
+
+export const analytics = async (req, res, next) => {
+  const parent = await Parent.findOne({ userId: req.user._id }).populate({
+    path: "children",
+    select: "userId totalPoints",
+    populate: {
+      path: "userId",
+      select: "name",
+    },
+  });
+
+  if (!parent) {
+    return next(new Error("Parent profile not found", { cause: 404 }));
+  }
+
+  const children = parent.children.map((child) => ({
+    name: child.userId.name,
+    points: child.totalPoints,
+  }));
+
+  children.sort((a, b) => {
+    return b.points - a.points;
+  });
+  return res.status(200).json({ success: true, analytics: children });
+};
