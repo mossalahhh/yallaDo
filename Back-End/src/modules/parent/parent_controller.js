@@ -385,3 +385,58 @@ export const analytics = async (req, res, next) => {
   });
   return res.status(200).json({ success: true, analytics: children });
 };
+
+export const pointsOverTime = async (req, res, next) => {
+  //get data
+  const { range } = req.query;
+
+  //getParent
+  const parent = await Parent.findOne({ userId: req.user._id });
+
+  //check parent
+  if (!parent) {
+    return next(new Error("Parent profile not found", { cause: 404 }));
+  }
+
+  //date format based on range
+  let dateFormat;
+  if (range === "daily") {
+    dateFormat = "%Y-%m-%d";
+  } else if (range === "weekly") {
+    dateFormat = "%Y-%U";
+  } else if (range === "monthly") {
+    dateFormat = "%Y-%m";
+  }
+  //aggregate
+  const PointsAnalytics = await History.aggregate([
+    {
+      $match: {
+        parentId: parent._id,
+        type: "add",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: {
+            format: dateFormat,
+            date: "$createdAt",
+          },
+        },
+        totalPoints: { $sum: "$points" },
+      },
+    },
+    {
+      $sort: { _id: 1 },
+    },
+    {
+      $project: {
+        _id: 0,
+        date: "$_id",
+        points: "$totalPoints",
+      },
+    },
+  ]);
+  //return res
+  return res.status(200).json({ success: true, results: PointsAnalytics });
+};

@@ -13,12 +13,14 @@ import {
   allHistory,
   dashborad,
   analytics,
+  pointsOverTime,
 } from "./parent_controller.js";
 import {
   childIdSchema,
   pointsSchema,
   childHistorySchema,
   historySchema,
+  pointAnalyticsSchema,
 } from "./parent_validation.js";
 
 const router = Router();
@@ -87,5 +89,12 @@ router.get(
   isAuthenticated,
   isAuthorized("parent"),
   catchErorr(analytics),
+);
+router.get(
+  "/analytics-points",
+  isAuthenticated,
+  isValid(pointAnalyticsSchema),
+  isAuthorized("parent"),
+  catchErorr(pointsOverTime),
 );
 export default router;

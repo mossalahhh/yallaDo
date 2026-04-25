@@ -32,3 +32,9 @@ export const historySchema = joi.object({
   type: joi.string().valid("add", "remove").optional(),
   source: joi.string().valid("manual", "task", "reward").optional(),
 });
+
+export const pointAnalyticsSchema = joi
+  .object({
+    range: joi.string().valid("daily", "weekly", "monthly"),
+  })
+  .options({ presence: "required" });
