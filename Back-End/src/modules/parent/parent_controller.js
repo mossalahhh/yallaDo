@@ -52,7 +52,7 @@ export const myChildren = async (req, res, next) => {
     select: "age totalPoints",
     populate: {
       path: "userId",
-      select: " -_id name dateOfBirth",
+      select: " -_id name dateOfBirth profilePic",
     },
   });
   if (!parent) {
@@ -60,7 +60,8 @@ export const myChildren = async (req, res, next) => {
   }
 
   const children = parent.children.map((child) => ({
-    _id: child._id,
+    childId: child._id,
+    avater: child.userId.profilePic,
     name: child.userId.name,
     age: child.userId.age,
     totalPoints: child.totalPoints,
@@ -226,7 +227,7 @@ export const detailsChild = async (req, res, next) => {
     parents: parent._id,
   }).populate({
     path: "userId",
-    select: "name dateOfBirth",
+    select: "name dateOfBirth profilePic",
   });
 
   const lastActivity = await History.findOne({ childId: child._id }).sort({
@@ -237,7 +238,8 @@ export const detailsChild = async (req, res, next) => {
 
   const resObject = {
     child: {
-      _id: child._id,
+      childId: child._id,
+      avatar: child.userId.profilePic,
       name: child.userId.name,
       age: child.userId.age,
       totalPoints: child.totalPoints,
@@ -440,4 +442,36 @@ export const pointsOverTime = async (req, res, next) => {
   ]);
   //return res
   return res.status(200).json({ success: true, results: PointsAnalytics });
+};
+
+export const topThree = async (req, res, next) => {
+  //getparent
+  const parent = await Parent.findOne({ userId: req.user._id }).populate({
+    path: "children",
+    select: "_id userId totalPoints",
+    populate: {
+      path: "userId",
+      select: "name profilePic",
+    },
+  });
+  //check parent
+  if (!parent) {
+    return next(new Error("Parent profile not found", { cause: 404 }));
+  }
+
+  //map to enhance response
+  const children = parent.children.map((child) => ({
+    childId: child._id,
+    avatar: child.userId.profilePic,
+    name: child.userId.name,
+    points: child.totalPoints,
+  }));
+
+  children.sort((a, b) => {
+    return b.points - a.points;
+  });
+
+  const top3 = children.slice(0, 3);
+
+  return res.status(200).json({ success: true, top3 });
 };

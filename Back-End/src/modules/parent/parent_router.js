@@ -14,6 +14,7 @@ import {
   dashborad,
   analytics,
   pointsOverTime,
+  topThree,
 } from "./parent_controller.js";
 import {
   childIdSchema,
@@ -96,5 +97,11 @@ router.get(
   isValid(pointAnalyticsSchema),
   isAuthorized("parent"),
   catchErorr(pointsOverTime),
+);
+router.get(
+  "/top-children",
+  isAuthenticated,
+  isAuthorized("parent"),
+  catchErorr(topThree),
 );
 export default router;
