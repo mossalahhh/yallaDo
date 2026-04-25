@@ -421,6 +421,7 @@ export const pointsOverTime = async (req, res, next) => {
           $dateToString: {
             format: dateFormat,
             date: "$createdAt",
+            timezone: "UTC",
           },
         },
         totalPoints: { $sum: "$points" },
