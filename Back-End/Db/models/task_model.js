@@ -60,7 +60,7 @@ const taskSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected", "submitted", "completed"],
+      enum: ["pending", "claimed", "rejected", "submitted", "approved"],
       default: "pending",
     },
     image: {
@@ -73,7 +73,10 @@ const taskSchema = new Schema(
     },
 
     submission: {
-      description: String,
+      description: {
+        type: String,
+        maxlength: [500, "Submission description too long"],
+      },
       images: [
         {
           url: String,
@@ -97,10 +100,14 @@ taskSchema.virtual("isOverdue").get(function () {
   );
 });
 
-taskSchema.plugin(queryHelperPlugin);
+taskSchema.virtual("isClaimed").get(function () {
+  return !!this.claimedBy;
+});
 
 taskSchema.index({ assignedTo: 1, status: 1, dueDate: 1 });
 taskSchema.index({ createdBy: 1, status: 1, createdAt: -1 });
+
+taskSchema.plugin(queryHelperPlugin);
 
 const Task = mongoose.models.Task || model("Task", taskSchema);
 
