@@ -72,6 +72,22 @@ const taskSchema = new Schema(
       },
     },
 
+    requirements: {
+      requireDescription: {
+        type: Boolean,
+        default: false,
+      },
+      requireImages: {
+        type: Boolean,
+        default: false,
+      },
+      minImages: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+    },
+
     submission: {
       description: {
         type: String,
