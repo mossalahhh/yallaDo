@@ -73,13 +73,10 @@ const taskSchema = new Schema(
     },
 
     requirements: {
-      requireDescription: {
-        type: Boolean,
-        default: false,
-      },
-      requireImages: {
-        type: Boolean,
-        default: false,
+      submissionType: {
+        type: String,
+        enum: ["text", "image", "both"],
+        default: "text",
       },
       minImages: {
         type: Number,
@@ -112,7 +109,7 @@ const taskSchema = new Schema(
 
 taskSchema.virtual("isOverdue").get(function () {
   return (
-    this.dueDate && this.status !== "completed" && this.dueDate < new Date()
+    this.dueDate && this.status !== "approved" && this.dueDate < new Date()
   );
 });
 
