@@ -117,6 +117,31 @@ taskSchema.virtual("isClaimed").get(function () {
   return !!this.claimedBy;
 });
 
+//return clean res and remove empty fields
+taskSchema.set("toJSON", {
+  transform: (doc, ret) => {
+    ret.taskId = ret._id;
+    delete ret._id;
+    delete ret.__v;
+
+    // remove empty claimedBy
+    if (!ret.claimedBy) delete ret.claimedBy;
+
+    //remove assignedTo if null
+    if (!ret.assignedTo) delete ret.assignedTo;
+    // remove empty submission
+    if (!ret.submission?.images?.length && !ret.submission?.description) {
+      delete ret.submission;
+    }
+    // remove empty image
+    if (!ret.image?.url) {
+      delete ret.image;
+    }
+
+    return ret;
+  },
+});
+
 taskSchema.index({ assignedTo: 1, status: 1, dueDate: 1 });
 taskSchema.index({ createdBy: 1, status: 1, createdAt: -1 });
 

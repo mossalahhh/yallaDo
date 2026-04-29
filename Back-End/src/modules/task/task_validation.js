@@ -1,5 +1,6 @@
 import Joi from "joi";
 import { isValidObject } from "../../middleware/validation_middleware.js";
+import { ECDH } from "node:crypto";
 
 export const createTaskSchema = Joi.object({
   title: Joi.string().min(3).max(100).required(),
@@ -25,4 +26,15 @@ export const createTaskSchema = Joi.object({
       then: Joi.valid(0),
       otherwise: Joi.optional(),
     }),
+});
+
+export const getTasksSchema = Joi.object({
+  page: Joi.number().optional(),
+  fields: Joi.string().optional(),
+
+  priority: Joi.string().optional(),
+  points: Joi.number().optional(),
+  status: Joi.string().optional(),
+  category: Joi.string().optional(),
+  type: Joi.string().optional(),
 });

@@ -105,3 +105,30 @@ export const createTask = async (req, res, next) => {
     taskDetails: taskResObj,
   });
 };
+
+export const getTasks = async (req, res, next) => {
+  const user = req.user;
+  const { fields, page, ...rest } = req.query;
+  const filter = {};
+
+  const parent = await Parent.findOne({ userId: user._id });
+  const child = await Child.findOne({ userId: user._id });
+
+  if (user.role === "parent") {
+    filter.createdBy = parent._id;
+  } else {
+    filter.$or = [
+      { assignedTo: child._id },
+      { type: "open", claimedBy: null },
+      { claimedBy: child._id },
+    ];
+  }
+
+  const task = await Task.find(filter)
+    .customFilter(rest)
+    .customSelect(fields)
+    .paginate(page)
+    .sort({ createdAt: -1 });
+
+  return res.json({ success: true, page, data: task });
+};

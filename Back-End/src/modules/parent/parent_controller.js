@@ -267,7 +267,7 @@ export const childHistory = async (req, res, next) => {
     .paginate(page)
     .sort({ createdAt: -1 });
 
-  return res.status(200).json({ success: true, history });
+  return res.status(200).json({ success: true, history: { page, history } });
 };
 
 export const allHistory = async (req, res, next) => {
@@ -277,7 +277,7 @@ export const allHistory = async (req, res, next) => {
     .customSelect(fields)
     .paginate(page)
     .sort({ createdAt: -1 });
-  return res.status(200).json({ success: true, history });
+  return res.status(200).json({ success: true, history: { page, history } });
 };
 
 export const dashborad = async (req, res, next) => {
