@@ -4,8 +4,12 @@ import { isAuthenticated } from "../../middleware/authentication.js";
 import { isValid } from "../../middleware/validation_middleware.js";
 import { fileUpload, validationImg } from "../../utils/multer.js";
 import { catchErorr } from "../../utils/catchErorr.js";
-import { createTask, getTasks } from "./task_controller.js";
-import { createTaskSchema, getTasksSchema } from "./task_validation.js";
+import { createTask, getTasks, singleTask } from "./task_controller.js";
+import {
+  createTaskSchema,
+  getTasksSchema,
+  getSingleTaskSchema,
+} from "./task_validation.js";
 
 const router = Router();
 
@@ -23,5 +27,11 @@ router.get(
   isAuthenticated,
   isValid(getTasksSchema),
   catchErorr(getTasks),
+);
+router.get(
+  "/:taskId",
+  isAuthenticated,
+  isValid(getSingleTaskSchema),
+  catchErorr(singleTask),
 );
 export default router;

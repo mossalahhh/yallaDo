@@ -132,3 +132,15 @@ export const getTasks = async (req, res, next) => {
 
   return res.json({ success: true, page, data: task });
 };
+
+export const singleTask = async (req, res, next) => {
+  const { taskId } = req.params;
+
+  const task = await Task.findById(taskId);
+
+  if (!task) {
+    return next(new Error("invaild task Id", { cause: 404 }));
+  }
+
+  return res.status(200).json({ success: true, task });
+};
