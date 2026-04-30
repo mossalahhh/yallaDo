@@ -144,3 +144,24 @@ export const singleTask = async (req, res, next) => {
 
   return res.status(200).json({ success: true, task });
 };
+
+export const claimTask = async (req, res, next) => {
+  const { taskId } = req.params;
+  const child = await Child.findOne({ userId: req.user._id });
+
+  const task = await Task.findOneAndUpdate(
+    {
+      _id: taskId,
+      type: "open",
+      claimedBy: null,
+    },
+    { claimedBy: child._id, status: "claimed" },
+    { new: true },
+  );
+
+  if (!task) {
+    return next(new Error("Task already claimed", { cause: 400 }));
+  }
+
+  return res.json({ sucess: true, data: task });
+};

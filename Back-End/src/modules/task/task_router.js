@@ -4,11 +4,16 @@ import { isAuthenticated } from "../../middleware/authentication.js";
 import { isValid } from "../../middleware/validation_middleware.js";
 import { fileUpload, validationImg } from "../../utils/multer.js";
 import { catchErorr } from "../../utils/catchErorr.js";
-import { createTask, getTasks, singleTask } from "./task_controller.js";
+import {
+  createTask,
+  getTasks,
+  singleTask,
+  claimTask,
+} from "./task_controller.js";
 import {
   createTaskSchema,
   getTasksSchema,
-  getSingleTaskSchema,
+  checkIdSchema,
 } from "./task_validation.js";
 
 const router = Router();
@@ -31,7 +36,14 @@ router.get(
 router.get(
   "/:taskId",
   isAuthenticated,
-  isValid(getSingleTaskSchema),
+  isValid(checkIdSchema),
   catchErorr(singleTask),
+);
+router.patch(
+  "/:taskId/claim",
+  isAuthenticated,
+  isAuthorized("child"),
+  isValid(checkIdSchema),
+  catchErorr(claimTask),
 );
 export default router;

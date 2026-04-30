@@ -39,6 +39,6 @@ export const getTasksSchema = Joi.object({
   type: Joi.string().optional(),
 });
 
-export const getSingleTaskSchema = Joi.object({
+export const checkIdSchema = Joi.object({
   taskId: Joi.string().custom(isValidObject).required(),
 });
