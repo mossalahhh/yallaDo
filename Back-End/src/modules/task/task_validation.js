@@ -42,3 +42,8 @@ export const getTasksSchema = Joi.object({
 export const checkIdSchema = Joi.object({
   taskId: Joi.string().custom(isValidObject).required(),
 });
+
+export const submitSchema = Joi.object({
+  description: Joi.string().optional(),
+  taskId: Joi.string().custom(isValidObject).required(),
+});

@@ -165,3 +165,82 @@ export const claimTask = async (req, res, next) => {
 
   return res.json({ sucess: true, data: task });
 };
+
+export const submitTask = async (req, res, next) => {
+  //get data
+  const { taskId } = req.params;
+  const description = req.body?.description;
+
+  const task = await Task.findById({ _id: taskId });
+
+  const child = await Child.findOne({ userId: req.user._id });
+
+  if (!child) {
+    return next(new Error("child profile not found ", { cause: 404 }));
+  }
+
+  console.log({
+    user: child._id.toString(),
+    assignedTo: task.assignedTo?.toString(),
+    claimedBy: task.claimedBy?.toString(),
+    type: task.type,
+  });
+
+  if (!task) {
+    return next(new Error("Task not found", { cause: 404 }));
+  }
+  //check ownership
+  const isOwner =
+    child._id.toString() === task.claimedBy?.toString() ||
+    child._id.toString() === task.assignedTo?.toString();
+
+  if (!isOwner) {
+    return next(new Error("Not authorized", { cause: 403 }));
+  }
+
+  //check status
+  if (task.status !== "pending" && task.status !== "claimed") {
+    return next(new Error("Task cannot be submitted", { cause: 400 }));
+  }
+
+  //requirments
+  if (
+    (task.requirements.submissionType === "text" ||
+      task.requirements.submissionType === "both") &&
+    !description
+  ) {
+    return next(new Error("Description is required", { cause: 400 }));
+  }
+
+  let images = [];
+  if (
+    task.requirements.submissionType === "image" ||
+    task.requirements.submissionType === "both"
+  ) {
+    if (!req.files || req.files.length < task.requirements.minImages) {
+      return next(new Error("Not enough images", { cause: 400 }));
+    }
+
+    for (const file of req.files) {
+      const { secure_url, public_id } = await cloudinary.uploader.upload(
+        file.path,
+        { folder: `${process.env.FOLDER_NAME}/tasks/submissions/${task._id}` },
+      );
+      images.push({ url: secure_url, id: public_id });
+    }
+  }
+
+  task.submission = {
+    description,
+    images,
+    submittedAt: new Date(),
+  };
+
+  task.status = "submitted";
+
+  await task.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Task submitted successfully", task });
+};

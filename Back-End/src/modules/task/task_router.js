@@ -9,11 +9,13 @@ import {
   getTasks,
   singleTask,
   claimTask,
+  submitTask,
 } from "./task_controller.js";
 import {
   createTaskSchema,
   getTasksSchema,
   checkIdSchema,
+  submitSchema,
 } from "./task_validation.js";
 
 const router = Router();
@@ -45,5 +47,13 @@ router.patch(
   isAuthorized("child"),
   isValid(checkIdSchema),
   catchErorr(claimTask),
+);
+router.patch(
+  "/:taskId/submit",
+  isAuthenticated,
+  isAuthorized("child"),
+  fileUpload(validationImg.images).array("submitImgs", 5),
+  isValid(submitSchema),
+  catchErorr(submitTask),
 );
 export default router;
