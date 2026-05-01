@@ -179,12 +179,12 @@ export const submitTask = async (req, res, next) => {
     return next(new Error("child profile not found ", { cause: 404 }));
   }
 
-  console.log({
-    user: child._id.toString(),
-    assignedTo: task.assignedTo?.toString(),
-    claimedBy: task.claimedBy?.toString(),
-    type: task.type,
-  });
+  // console.log({
+  //   user: child._id.toString(),
+  //   assignedTo: task.assignedTo?.toString(),
+  //   claimedBy: task.claimedBy?.toString(),
+  //   type: task.type,
+  // });
 
   if (!task) {
     return next(new Error("Task not found", { cause: 404 }));
