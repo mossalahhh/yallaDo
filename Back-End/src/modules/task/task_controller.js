@@ -2,6 +2,7 @@ import Task from "../../../Db/models/task_model.js";
 import cloudinary from "../../utils/cloudinary.js";
 import Parent from "../../../Db/models/parent_model.js";
 import Child from "../../../Db/models/child_model.js";
+import mongoose from "mongoose";
 
 export const createTask = async (req, res, next) => {
   //data
@@ -257,4 +258,63 @@ export const submitTask = async (req, res, next) => {
   return res
     .status(200)
     .json({ success: true, message: "Task submitted successfully", task });
+};
+
+export const approveTask = async (req, res, next) => {
+  const { taskId } = req.params;
+  const session = await mongoose.startSession();
+
+  session.startTransaction();
+  try {
+    const task = await Task.findById(taskId).session(session);
+
+    const parent = await Parent.findOne({ userId: req.user._id }).session(
+      session,
+    );
+    //isOwner
+    if (parent._id.toString() !== task.createdBy.toString()) {
+      return next(new Error("Not authorized", { cause: 403 }));
+    }
+
+    if (!task) {
+      return next(new Error("Task Not Found", { cause: 404 }));
+    }
+
+    if (task.status === "approved") {
+      return next(new Error("Task already approved", { cause: 400 }));
+    }
+
+    if (task.status !== "submitted") {
+      return next(
+        new Error("You Can not approve unsubmitted tasks", { cause: 400 }),
+      );
+    }
+
+    const childId = task.claimedBy || task.assignedTo;
+    console.log(childId);
+    if (!childId) {
+      return next(new Error("Task has no assigned child", { cause: 400 }));
+    }
+
+    task.status = "approved";
+    task.approvedAt = new Date();
+
+    await task.save({ session });
+
+    const updatedPoints = task.points;
+
+    await Child.findByIdAndUpdate(
+      childId,
+      { $inc: { totalPoints: updatedPoints } },
+      { session },
+    );
+    await session.commitTransaction();
+
+    return res.status(200).json({ success: true, message: "Task Approved" });
+  } catch (error) {
+    await session.abortTransaction();
+    next(error);
+  } finally {
+    session.endSession();
+  }
 };

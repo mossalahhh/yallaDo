@@ -10,6 +10,7 @@ import {
   singleTask,
   claimTask,
   submitTask,
+  approveTask,
 } from "./task_controller.js";
 import {
   createTaskSchema,
@@ -55,5 +56,12 @@ router.patch(
   fileUpload(validationImg.images).array("submitImgs", 5),
   isValid(submitSchema),
   catchErorr(submitTask),
+);
+router.patch(
+  "/:taskId/approve",
+  isAuthenticated,
+  isAuthorized("parent"),
+  isValid(checkIdSchema),
+  catchErorr(approveTask),
 );
 export default router;
