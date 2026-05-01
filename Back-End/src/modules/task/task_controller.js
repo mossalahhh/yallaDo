@@ -15,6 +15,7 @@ export const createTask = async (req, res, next) => {
     category,
     submissionType,
     minImages,
+    dueDate,
   } = req.body;
   //find parent
   if (type === "open" && assignedTo) {
@@ -27,6 +28,17 @@ export const createTask = async (req, res, next) => {
 
   if (submissionType === "text" && minImages > 0) {
     return next(new Error("minImages must be 0 when submissionType is text"));
+  }
+
+  let due = undefined;
+
+  if (dueDate) {
+    due = new Date(dueDate);
+    due.setHours(23, 59, 59, 999);
+
+    if (due < new Date()) {
+      return next(new Error("Due date must be in the future", { cause: 400 }));
+    }
   }
 
   const parent = await Parent.findOne({ userId: req.user._id }).lean();
@@ -65,6 +77,7 @@ export const createTask = async (req, res, next) => {
       submissionType: submissionType ?? "text",
       minImages: minImages ?? 0,
     },
+    dueDate: due || undefined,
   });
 
   if (req.file) {
@@ -96,6 +109,7 @@ export const createTask = async (req, res, next) => {
     priority: task.priority,
     category: task.category,
     requirements: task.requirements,
+    dueDate: task.dueDate,
   };
 
   //return res
