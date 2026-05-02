@@ -51,3 +51,10 @@ export const rejectSchema = Joi.object({
   taskId: Joi.string().custom(isValidObject).required(),
   rejectionReason: Joi.string().allow("").optional(),
 });
+
+export const updateSchema = Joi.object({
+  taskId: Joi.string().custom(isValidObject).required(),
+  title: Joi.string().optional(),
+  points: Joi.number().optional(),
+  dueDate: Joi.date().optional(),
+});

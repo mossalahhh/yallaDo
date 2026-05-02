@@ -351,3 +351,51 @@ export const rejectTask = async (req, res, next) => {
     .status(200)
     .json({ success: true, message: "Task Rejected Successfully" });
 };
+
+export const updateTask = async (req, res, next) => {
+  const { taskId } = req.params;
+  const { title, points, dueDate } = req.body;
+
+  const task = await Task.findById(taskId);
+
+  if (!task) {
+    return next(new Error("Task Not Found", { cause: 404 }));
+  }
+
+  const parent = await Parent.findOne({ userId: req.user._id });
+  if (!parent) {
+    return next(new Error("Parent Profile Not Found", { cause: 404 }));
+  }
+
+  if (parent._id.toString() !== task.createdBy.toString()) {
+    return next(new Error("Not authorized", { cause: 403 }));
+  }
+
+  let due = undefined;
+
+  if (dueDate) {
+    due = new Date(dueDate);
+    due.setHours(23, 59, 59, 999);
+
+    if (due < new Date()) {
+      return next(new Error("Due date must be in the future", { cause: 400 }));
+    }
+  }
+  if (
+    task.status === "submitted" ||
+    task.status === "rejected" ||
+    task.status === "approved"
+  ) {
+    return next(new Error("You Can not Updated this Task", { cause: 400 }));
+  }
+
+  task.title = title ? title : task.title;
+  task.points = points ? points : task.points;
+  task.dueDate = dueDate ? due : task.dueDate;
+
+  await task.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Task Updated Successfully", task });
+};
