@@ -131,7 +131,9 @@ export const getTasks = async (req, res, next) => {
 
   if (user.role === "parent") {
     filter.createdBy = parent._id;
+    filter.isDeleted = { $ne: true };
   } else {
+    filter.isDeleted = { $ne: true };
     filter.$or = [
       { assignedTo: child._id },
       { type: "open", claimedBy: null },
