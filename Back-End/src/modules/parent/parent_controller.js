@@ -212,8 +212,6 @@ export const bounsPoints = async (req, res, next) => {
   }
 };
 
-//v1 without tasks aggregation
-//todo task aggregate to show task count completed tasks.....
 export const detailsChild = async (req, res, next) => {
   const { childId } = req.params;
 
