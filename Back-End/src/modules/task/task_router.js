@@ -13,6 +13,7 @@ import {
   approveTask,
   rejectTask,
   updateTask,
+  deleteTask,
 } from "./task_controller.js";
 import {
   createTaskSchema,
@@ -81,5 +82,12 @@ router.patch(
   isAuthorized("parent"),
   isValid(updateSchema),
   catchErorr(updateTask),
+);
+router.patch(
+  "/:taskId/delete",
+  isAuthenticated,
+  isAuthorized("parent"),
+  isValid(checkIdSchema),
+  catchErorr(deleteTask),
 );
 export default router;

@@ -98,7 +98,10 @@ const taskSchema = new Schema(
       ],
       submittedAt: Date,
     },
-
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
     dueDate: Date,
     completedAt: Date,
     approvedAt: Date,

@@ -399,3 +399,30 @@ export const updateTask = async (req, res, next) => {
     .status(200)
     .json({ success: true, message: "Task Updated Successfully", task });
 };
+
+//delete task (soft delete)
+export const deleteTask = async (req, res, next) => {
+  const { taskId } = req.params;
+
+  const task = await Task.findById(taskId);
+
+  if (!task) {
+    return next(new Error("Task Not Found", { cause: 404 }));
+  }
+
+  const parent = await Parent.findOne({ userId: req.user._id });
+  if (!parent) {
+    return next(new Error("Parent Profile Not Found", { cause: 404 }));
+  }
+
+  if (parent._id.toString() !== task.createdBy.toString()) {
+    return next(new Error("Not authorized", { cause: 403 }));
+  }
+
+  task.isDeleted = true;
+  await task.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Task Deleted Successfully" });
+};
