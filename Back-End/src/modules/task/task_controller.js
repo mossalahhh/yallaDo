@@ -428,3 +428,14 @@ export const deleteTask = async (req, res, next) => {
     .status(200)
     .json({ success: true, message: "Task Deleted Successfully" });
 };
+
+export const getDelTasks = async (req, res, next) => {
+  const parent = await Parent.findOne({ userId: req.user._id });
+  const task = await Task.find({ isDeleted: true, createdBy: parent._id }).sort(
+    { createdAt: -1 },
+  );
+  if (!task.length) {
+    return next(new Error("No Deleted Tasks", { cause: 404 }));
+  }
+  return res.status(200).json({ success: true, task });
+};

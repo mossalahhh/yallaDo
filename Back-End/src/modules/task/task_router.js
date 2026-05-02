@@ -14,6 +14,7 @@ import {
   rejectTask,
   updateTask,
   deleteTask,
+  getDelTasks,
 } from "./task_controller.js";
 import {
   createTaskSchema,
@@ -40,6 +41,12 @@ router.get(
   isAuthenticated,
   isValid(getTasksSchema),
   catchErorr(getTasks),
+);
+router.get(
+  "/tasks-deleted",
+  isAuthenticated,
+  isAuthorized("parent"),
+  catchErorr(getDelTasks),
 );
 router.get(
   "/:taskId",
