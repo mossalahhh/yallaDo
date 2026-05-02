@@ -2,6 +2,7 @@ import Task from "../../../Db/models/task_model.js";
 import cloudinary from "../../utils/cloudinary.js";
 import Parent from "../../../Db/models/parent_model.js";
 import Child from "../../../Db/models/child_model.js";
+import History from "../../../Db/models/history_mode.js";
 import mongoose from "mongoose";
 
 export const createTask = async (req, res, next) => {
@@ -310,8 +311,6 @@ export const approveTask = async (req, res, next) => {
       { $inc: { totalPoints: updatedPoints } },
       { session },
     );
-    await session.commitTransaction();
-
     await History.create(
       [
         {
@@ -325,6 +324,7 @@ export const approveTask = async (req, res, next) => {
       ],
       { session },
     );
+    await session.commitTransaction();
 
     return res.status(200).json({ success: true, message: "Task Approved" });
   } catch (error) {
