@@ -312,6 +312,20 @@ export const approveTask = async (req, res, next) => {
     );
     await session.commitTransaction();
 
+    await History.create(
+      [
+        {
+          childId,
+          parentId: parent._id,
+          points: updatedPoints,
+          source: "task",
+          type: "add",
+          reason: "Approved Task",
+        },
+      ],
+      { session },
+    );
+
     return res.status(200).json({ success: true, message: "Task Approved" });
   } catch (error) {
     await session.abortTransaction();
