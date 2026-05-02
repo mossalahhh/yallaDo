@@ -15,6 +15,7 @@ import {
   updateTask,
   deleteTask,
   getDelTasks,
+  retoreTask,
 } from "./task_controller.js";
 import {
   createTaskSchema,
@@ -96,5 +97,12 @@ router.patch(
   isAuthorized("parent"),
   isValid(checkIdSchema),
   catchErorr(deleteTask),
+);
+router.patch(
+  "/:taskId/restore",
+  isAuthenticated,
+  isAuthorized("parent"),
+  isValid(checkIdSchema),
+  catchErorr(retoreTask),
 );
 export default router;

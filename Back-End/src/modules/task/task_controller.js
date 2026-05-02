@@ -434,8 +434,35 @@ export const getDelTasks = async (req, res, next) => {
   const task = await Task.find({ isDeleted: true, createdBy: parent._id }).sort(
     { createdAt: -1 },
   );
-  if (!task.length) {
-    return next(new Error("No Deleted Tasks", { cause: 404 }));
+
+  return res.status(200).json({ success: true, data: task });
+};
+
+export const retoreTask = async (req, res, next) => {
+  const { taskId } = req.params;
+  const parent = await Parent.findOne({ userId: req.user._id });
+
+  if (!parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
   }
-  return res.status(200).json({ success: true, task });
+
+  const task = await Task.findOne({
+    _id: taskId,
+    createdBy: parent._id,
+  });
+
+  if (!task) {
+    return next(new Error("Task not found", { cause: 404 }));
+  }
+
+  if (!task.isDeleted) {
+    return next(new Error("Task is not deleted", { cause: 400 }));
+  }
+
+  task.isDeleted = false;
+  await task.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Task Restored Successfully", task });
 };
