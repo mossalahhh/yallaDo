@@ -318,3 +318,36 @@ export const approveTask = async (req, res, next) => {
     session.endSession();
   }
 };
+
+export const rejectTask = async (req, res, next) => {
+  const { taskId } = req.params;
+  const rejectionReason = req.body?.rejectionReason;
+  const task = await Task.findById(taskId);
+
+  if (!task) {
+    return next(new Error("Task Not Found", { cause: 404 }));
+  }
+
+  const parent = await Parent.findOne({ userId: req.user._id });
+  if (parent._id.toString() !== task.createdBy.toString()) {
+    return next(new Error("Not authorized", { cause: 403 }));
+  }
+
+  if (task.status === "rejected") {
+    return next(new Error("Task already rejected", { cause: 400 }));
+  }
+
+  if (task.status !== "submitted") {
+    return next(
+      new Error("You Can not reject unsubmitted tasks", { cause: 400 }),
+    );
+  }
+
+  task.rejectionReason = rejectionReason;
+  task.status = "rejected";
+  await task.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Task Rejected Successfully" });
+};

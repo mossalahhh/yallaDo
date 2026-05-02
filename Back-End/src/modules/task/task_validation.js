@@ -47,3 +47,7 @@ export const submitSchema = Joi.object({
   description: Joi.string().optional(),
   taskId: Joi.string().custom(isValidObject).required(),
 });
+export const rejectSchema = Joi.object({
+  taskId: Joi.string().custom(isValidObject).required(),
+  rejectionReason: Joi.string().allow("").optional(),
+});

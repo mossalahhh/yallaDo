@@ -11,12 +11,14 @@ import {
   claimTask,
   submitTask,
   approveTask,
+  rejectTask,
 } from "./task_controller.js";
 import {
   createTaskSchema,
   getTasksSchema,
   checkIdSchema,
   submitSchema,
+  rejectSchema,
 } from "./task_validation.js";
 
 const router = Router();
@@ -63,5 +65,12 @@ router.patch(
   isAuthorized("parent"),
   isValid(checkIdSchema),
   catchErorr(approveTask),
+);
+router.patch(
+  "/:taskId/reject",
+  isAuthenticated,
+  isAuthorized("parent"),
+  isValid(rejectSchema),
+  catchErorr(rejectTask),
 );
 export default router;
