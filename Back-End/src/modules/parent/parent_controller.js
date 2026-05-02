@@ -2,6 +2,7 @@ import Child from "../../../Db/models/child_model.js";
 import Parent from "../../../Db/models/parent_model.js";
 import History from "../../../Db/models/history_mode.js";
 import RandomString from "randomstring";
+import Task from "../../../Db/models/task_model.js";
 import mongoose from "mongoose";
 
 export const inviteCode = async (req, res, next) => {
@@ -234,7 +235,47 @@ export const detailsChild = async (req, res, next) => {
     createdAt: -1,
   });
 
-  //todo task aggregate
+  const taskStats = await Task.aggregate([
+    {
+      $match: {
+        $or: [{ assignedTo: child._id }, { claimedBy: child._id }],
+        isDeleted: { $ne: true },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+        approved: { $sum: { $cond: [{ $eq: ["$status", "approved"] }, 1, 0] } },
+        rejected: { $sum: { $cond: [{ $eq: ["$status", "rejeted"] }, 1, 0] } },
+        pending: {
+          $sum: {
+            $cond: [
+              { $in: ["$status", ["pending", "claimed", "submitted"]] },
+              1,
+              0,
+            ],
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        total: 1,
+        approved: 1,
+        rejected: 1,
+        pending: 1,
+      },
+    },
+  ]);
+
+  const stats = taskStats[0] || {
+    total: 0,
+    approved: 0,
+    rejected: 0,
+    pending: 0,
+  };
 
   const resObject = {
     child: {
@@ -251,7 +292,7 @@ export const detailsChild = async (req, res, next) => {
       points: Math.abs(lastActivity.points),
       createdAt: lastActivity.createdAt,
     },
-    //todo task response
+    taskStats: stats,
   };
 
   return res.status(200).json({ success: true, results: resObject });
