@@ -5,12 +5,14 @@ const rewardSchema = new Schema(
     name: {
       type: String,
       required: true,
+      trim: true,
     },
     createdBy: {
       type: Types.ObjectId,
       ref: "Parent",
+      required: true,
     },
-    describtion: {
+    description: {
       type: String,
     },
     image: {
@@ -21,6 +23,21 @@ const rewardSchema = new Schema(
       type: Number,
       min: 1,
       required: true,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+
+    quantity: {
+      type: Number,
+      default: 1,
+      min: 0,
     },
   },
   { timestamps: true },
