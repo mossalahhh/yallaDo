@@ -15,4 +15,6 @@ router.post(
   catchErorr(linkAccounts),
 );
 
+//get my status
+//get my rank
 export default router;
