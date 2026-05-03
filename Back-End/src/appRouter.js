@@ -1,10 +1,10 @@
 import morgan from "morgan";
-import authRouer from "./modules/auth/auth_router.js";
-import userRouer from "./modules/user/user_router.js";
-import parentRouer from "./modules/parent/parent_router.js";
-import childRouer from "./modules/child/child_router.js";
-import taskRouer from "./modules/task/task_router.js";
-
+import authRouter from "./modules/auth/auth_router.js";
+import userRouter from "./modules/user/user_router.js";
+import parentRouter from "./modules/parent/parent_router.js";
+import childRouter from "./modules/child/child_router.js";
+import taskRouter from "./modules/task/task_router.js";
+import rewardRouter from "./modules/reward/reward_router.js";
 export const appRouter = (app, express) => {
   if (process.env.NODE_ENV === "dev") {
     app.use(morgan("common"));
@@ -12,11 +12,12 @@ export const appRouter = (app, express) => {
   //parse express data
   app.use(express.json());
 
-  app.use("/auth", authRouer);
-  app.use("/user", userRouer);
-  app.use("/parent", parentRouer);
-  app.use("/child", childRouer);
-  app.use("/task", taskRouer);
+  app.use("/auth", authRouter);
+  app.use("/user", userRouter);
+  app.use("/parent", parentRouter);
+  app.use("/child", childRouter);
+  app.use("/task", taskRouter);
+  app.use("/reward", rewardRouter);
 
   //handle page not found error
   app.use((req, res, next) => {
