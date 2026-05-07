@@ -405,6 +405,24 @@ export const updateTask = async (req, res, next) => {
     return next(new Error("You Can not Updated this Task", { cause: 400 }));
   }
 
+  if (req.file) {
+    if (task.image?.id) {
+      await cloudinary.uploader.destroy(reward.image.id);
+    }
+
+    const { secure_url, public_id } = await cloudinary.uploader.upload(
+      req.file.path,
+      {
+        folder: `${process.env.FOLDER_NAME}/tasks/${task._id}`,
+      },
+    );
+
+    task.image = {
+      url: secure_url,
+      id: public_id,
+    };
+  }
+
   task.title = title ? title : task.title;
   task.points = points ? points : task.points;
   task.dueDate = dueDate ? due : task.dueDate;

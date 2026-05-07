@@ -35,3 +35,49 @@ export const addReward = async (req, res, next) => {
     .status(201)
     .json({ success: true, message: "Reward Created", reward });
 };
+
+export const updateReward = async (req, res, next) => {
+  const { name, description, points, quantity } = req.body;
+  const { rewardId } = req.params;
+
+  const reward = await Reward.findById(rewardId);
+  if (!reward) {
+    return next(new Error("Reward not found", { cause: 404 }));
+  }
+
+  const parent = await Parent.findOne({ userId: req.user._id });
+  if (!parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
+  }
+
+  //isOwner
+  if (reward.createdBy.toString() !== parent._id.toString()) {
+    return next(new Error("Not authorized", { cause: 403 }));
+  }
+
+  if (req.file) {
+    if (reward.image?.id) {
+      await cloudinary.uploader.destroy(reward.image.id);
+    }
+    const { secure_url, public_id } = await cloudinary.uploader.upload(
+      req.file.path,
+      { folder: `${process.env.FOLDER_NAME}/rewards/${reward._id}` },
+    );
+
+    reward.image = {
+      url: secure_url,
+      id: public_id,
+    };
+  }
+
+  reward.name = name ? name : reward.name;
+  reward.description = description ? description : reward.description;
+  reward.points = points ? points : reward.points;
+  reward.quantity = quantity ? quantity : reward.quantity;
+
+  await reward.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Reward Updated Successfully", reward });
+};

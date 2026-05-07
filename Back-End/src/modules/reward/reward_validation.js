@@ -8,3 +8,11 @@ export const addRewardSchema = Joi.object({
   points: Joi.number().min(1).required(),
   quantity: Joi.number().optional(),
 });
+
+export const updateRewardSchema = Joi.object({
+  rewardId: Joi.string().custom(isValidObject).required(),
+  name: Joi.string().optional(),
+  description: Joi.string().optional(),
+  points: Joi.number().min(1).optional(),
+  quantity: Joi.number().optional(),
+});
