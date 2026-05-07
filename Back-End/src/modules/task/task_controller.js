@@ -407,7 +407,7 @@ export const updateTask = async (req, res, next) => {
 
   if (req.file) {
     if (task.image?.id) {
-      await cloudinary.uploader.destroy(reward.image.id);
+      await cloudinary.uploader.destroy(task.image.id);
     }
 
     const { secure_url, public_id } = await cloudinary.uploader.upload(
