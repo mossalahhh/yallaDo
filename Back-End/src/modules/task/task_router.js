@@ -88,6 +88,7 @@ router.patch(
   "/:taskId/update",
   isAuthenticated,
   isAuthorized("parent"),
+  fileUpload(validationImg.images).single("taskImg"),
   isValid(updateSchema),
   catchErorr(updateTask),
 );
