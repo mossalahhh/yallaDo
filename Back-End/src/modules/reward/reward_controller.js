@@ -81,3 +81,30 @@ export const updateReward = async (req, res, next) => {
     .status(200)
     .json({ success: true, message: "Reward Updated Successfully", reward });
 };
+
+//soft delete
+export const deleteReward = async (req, res, next) => {
+  const { rewardId } = req.params;
+
+  const reward = await Reward.findById(rewardId);
+  if (!reward) {
+    return next(new Error("Reward not found", { cause: 404 }));
+  }
+
+  const parent = await Parent.findOne({ userId: req.user._id });
+  if (!parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
+  }
+
+  //isOwner
+  if (reward.createdBy.toString() !== parent._id.toString()) {
+    return next(new Error("Not authorized", { cause: 403 }));
+  }
+
+  reward.isDeleted = true;
+  await reward.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Reward Deleted Successfully" });
+};
