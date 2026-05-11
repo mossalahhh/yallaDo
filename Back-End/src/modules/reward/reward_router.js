@@ -9,12 +9,13 @@ import {
   updateReward,
   deleteReward,
   getRewards,
+  getDeletedRewards,
 } from "./reward_controller.js";
 
 import {
   addRewardSchema,
   updateRewardSchema,
-  deleteRewardSchema,
+  idRewardSchema,
   getRewardSchema,
 } from "./reward_validation.js";
 const router = Router();
@@ -35,6 +36,14 @@ router.get(
   catchErorr(getRewards),
 );
 
+router.get(
+  "/deleted",
+  isAuthenticated,
+  isAuthorized("parent"),
+  isValid(getRewardSchema),
+  catchErorr(getDeletedRewards),
+);
+
 router.patch(
   "/:rewardId/update",
   isAuthenticated,
@@ -47,7 +56,7 @@ router.patch(
   "/:rewardId/delete",
   isAuthenticated,
   isAuthorized("parent"),
-  isValid(deleteRewardSchema),
+  isValid(idRewardSchema),
   catchErorr(deleteReward),
 );
 

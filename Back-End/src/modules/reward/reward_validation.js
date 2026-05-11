@@ -17,7 +17,7 @@ export const updateRewardSchema = Joi.object({
   quantity: Joi.number().optional(),
 });
 
-export const deleteRewardSchema = Joi.object({
+export const idRewardSchema = Joi.object({
   rewardId: Joi.string().custom(isValidObject).required(),
 });
 

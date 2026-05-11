@@ -141,3 +141,17 @@ export const deleteReward = async (req, res, next) => {
     .status(200)
     .json({ success: true, message: "Reward Deleted Successfully" });
 };
+
+export const getDeletedRewards = async (req, res, next) => {
+  const { fields, page } = req.query;
+
+  const parent = await Parent.findOne({ userId: req.user._id });
+
+  if (!parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
+  }
+
+  const rewards = await Reward.find({ isDeleted: true, createdBy: parent._id });
+
+  return res.status(200).json({ success: true, rewards });
+};

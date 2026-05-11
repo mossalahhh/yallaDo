@@ -470,6 +470,11 @@ export const deleteTask = async (req, res, next) => {
 
 export const getDelTasks = async (req, res, next) => {
   const parent = await Parent.findOne({ userId: req.user._id });
+
+  if (!parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
+  }
+
   const task = await Task.find({ isDeleted: true, createdBy: parent._id }).sort(
     { createdAt: -1 },
   );

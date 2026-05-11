@@ -14,7 +14,7 @@ router.post(
   isValid(linkAccountsSchema),
   catchErorr(linkAccounts),
 );
-
+//get my parents
 //get my status
 //get my rank
 export default router;
