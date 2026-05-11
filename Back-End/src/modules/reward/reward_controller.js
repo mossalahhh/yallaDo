@@ -164,6 +164,10 @@ export const restoreReward = async (req, res, next) => {
     return next(new Error("Parent not found", { cause: 404 }));
   }
 
+  if (reward.createdBy.toString() !== parent._id.toString()) {
+    return next(new Error("Not authorized", { cause: 403 }));
+  }
+
   const rewards = await Reward.findOne({
     _id: rewardId,
     createdBy: parent._id,
@@ -183,4 +187,63 @@ export const restoreReward = async (req, res, next) => {
   return res
     .status(200)
     .json({ success: true, message: "Reward Restored Successfully", rewards });
+};
+
+export const deActivateReward = async (req, res, next) => {
+  const { rewardId } = req.params;
+
+  const reward = await Reward.findById(rewardId);
+  if (!reward) {
+    return next(new Error("Reward not found", { cause: 404 }));
+  }
+
+  const parent = await Parent.findOne({ userId: req.user._id });
+  if (!parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
+  }
+
+  //isOwner
+  if (reward.createdBy.toString() !== parent._id.toString()) {
+    return next(new Error("Not authorized", { cause: 403 }));
+  }
+
+  reward.isActive = false;
+  await reward.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Reward deactivated Successfully" });
+};
+
+export const reActivateReward = async (req, res, next) => {
+  const { rewardId } = req.params;
+  const parent = await Parent.findOne({ userId: req.user._id });
+
+  if (!parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
+  }
+
+  const rewards = await Reward.findOne({
+    _id: rewardId,
+    createdBy: parent._id,
+  });
+
+  if (rewards.createdBy.toString() !== parent._id.toString()) {
+    return next(new Error("Not authorized", { cause: 403 }));
+  }
+
+  if (!rewards) {
+    return next(new Error("Reward not found", { cause: 404 }));
+  }
+
+  if (rewards.isActive) {
+    return next(new Error("Reward Already Activated", { cause: 400 }));
+  }
+
+  rewards.isActive = true;
+  await rewards.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Reward Activated Successfully", rewards });
 };
