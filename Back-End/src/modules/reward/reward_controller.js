@@ -36,6 +36,39 @@ export const addReward = async (req, res, next) => {
     .json({ success: true, message: "Reward Created", reward });
 };
 
+export const getRewards = async (req, res, next) => {
+  const user = req.user;
+  const { fields, page } = req.query;
+
+  const parent = await Parent.findOne({ userId: user._id });
+  const child = await Child.findOne({ userId: user._id });
+
+  if (user.role === "parent" && !parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
+  }
+
+  if (user.role === "child" && !child) {
+    return next(new Error("Child not found", { cause: 404 }));
+  }
+  const filter = {};
+
+  if (user.role === "parent") {
+    filter.createdBy = parent._id;
+    filter.isDeleted = { $ne: true };
+  } else {
+    filter.createdBy = { $in: child.parents };
+    filter.isDeleted = { $ne: true };
+    filter.isActive = true;
+  }
+
+  const rewards = await Reward.find(filter)
+    .customSelect(fields)
+    .paginate(page)
+    .sort({ createdAt: -1 });
+
+  return res.status(200).json({ success: true, rewards });
+};
+
 export const updateReward = async (req, res, next) => {
   const { name, description, points, quantity } = req.body;
   const { rewardId } = req.params;

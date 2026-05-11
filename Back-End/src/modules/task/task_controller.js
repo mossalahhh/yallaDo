@@ -130,6 +130,13 @@ export const getTasks = async (req, res, next) => {
   const parent = await Parent.findOne({ userId: user._id });
   const child = await Child.findOne({ userId: user._id });
 
+  if (user.role === "parent" && !parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
+  }
+
+  if (user.role === "child" && !child) {
+    return next(new Error("Child not found", { cause: 404 }));
+  }
   if (user.role === "parent") {
     filter.createdBy = parent._id;
     filter.isDeleted = { $ne: true };

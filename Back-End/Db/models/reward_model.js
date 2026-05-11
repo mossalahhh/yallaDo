@@ -1,5 +1,7 @@
 import mongoose, { Schema, Types, model } from "mongoose";
 
+import { queryHelperPlugin } from "../query_helpers.js";
+
 const rewardSchema = new Schema(
   {
     name: {
@@ -43,6 +45,7 @@ const rewardSchema = new Schema(
   { timestamps: true },
 );
 
+rewardSchema.plugin(queryHelperPlugin);
 const Reward = mongoose.models.Reward || model("Reward", rewardSchema);
 
 export default Reward;

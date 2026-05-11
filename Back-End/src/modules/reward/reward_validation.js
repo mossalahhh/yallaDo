@@ -20,3 +20,8 @@ export const updateRewardSchema = Joi.object({
 export const deleteRewardSchema = Joi.object({
   rewardId: Joi.string().custom(isValidObject).required(),
 });
+
+export const getRewardSchema = Joi.object({
+  page: Joi.number().optional(),
+  fields: Joi.string().optional(),
+});
