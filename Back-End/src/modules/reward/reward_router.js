@@ -10,6 +10,7 @@ import {
   deleteReward,
   getRewards,
   getDeletedRewards,
+  restoreReward,
 } from "./reward_controller.js";
 
 import {
@@ -58,6 +59,13 @@ router.patch(
   isAuthorized("parent"),
   isValid(idRewardSchema),
   catchErorr(deleteReward),
+);
+router.patch(
+  "/:rewardId/restore",
+  isAuthenticated,
+  isAuthorized("parent"),
+  isValid(idRewardSchema),
+  catchErorr(restoreReward),
 );
 
 export default router;

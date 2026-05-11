@@ -155,3 +155,32 @@ export const getDeletedRewards = async (req, res, next) => {
 
   return res.status(200).json({ success: true, rewards });
 };
+
+export const restoreReward = async (req, res, next) => {
+  const { rewardId } = req.params;
+  const parent = await Parent.findOne({ userId: req.user._id });
+
+  if (!parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
+  }
+
+  const rewards = await Reward.findOne({
+    _id: rewardId,
+    createdBy: parent._id,
+  });
+
+  if (!rewards) {
+    return next(new Error("Reward not found", { cause: 404 }));
+  }
+
+  if (!rewards.isDeleted) {
+    return next(new Error("Reward is not deleted", { cause: 400 }));
+  }
+
+  rewards.isDeleted = false;
+  await rewards.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Reward Restored Successfully", rewards });
+};
