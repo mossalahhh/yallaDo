@@ -3,6 +3,7 @@ import Parent from "../../../Db/models/parent_model.js";
 import Child from "../../../Db/models/child_model.js";
 import Reward from "../../../Db/models/reward_model.js";
 import cloudinary from "../../utils/cloudinary.js";
+import mongoose from "mongoose";
 
 export const addReward = async (req, res, next) => {
   const { name, description, points, quantity } = req.body;
@@ -246,4 +247,80 @@ export const reActivateReward = async (req, res, next) => {
   return res
     .status(200)
     .json({ success: true, message: "Reward Activated Successfully", rewards });
+};
+
+export const redeemReward = async (req, res, next) => {
+  const { rewardId } = req.params;
+
+  const session = await mongoose.startSession();
+
+  try {
+    await session.startTransaction();
+
+    const child = await Child.findOne({ userId: req.user._id }).session(
+      session,
+    );
+
+    if (!child) {
+      return next(new Error("child profile not found", { cause: 404 }));
+    }
+
+    console.log(child._id);
+    const reward = await Reward.findOne({
+      _id: rewardId,
+      createdBy: { $in: child.parents },
+    }).session(session);
+
+    if (!reward) {
+      return next(new Error("Reward Not Found", { cause: 404 }));
+    }
+
+    if (reward.points > child.totalPoints) {
+      return next(
+        new Error("Not enough points to redeem this reward", { cause: 400 }),
+      );
+    }
+
+    if (reward.quantity <= 0) {
+      return next(new Error("This Reward sold out", { cause: 400 }));
+    }
+
+    if (!reward.isActive) {
+      return next(
+        new Error("This reward is currently unavailable", { cause: 400 }),
+      );
+    }
+
+    child.spentPoints += reward.points;
+    child.totalPoints -= reward.points;
+
+    await child.save({ session });
+
+    reward.quantity -= 1;
+
+    await reward.save({ session });
+
+    await History.create(
+      [
+        {
+          childId: child._id,
+          parentId: reward.createdBy,
+          points: reward.points,
+          source: "reward",
+          type: "remove",
+          reason: "claim reward",
+        },
+      ],
+      { session },
+    );
+
+    await session.commitTransaction();
+
+    return res.json({ success: true, message: "Reward Claimed", reward });
+  } catch (error) {
+    await session.abortTransaction();
+    next(error);
+  } finally {
+    await session.endSession();
+  }
 };

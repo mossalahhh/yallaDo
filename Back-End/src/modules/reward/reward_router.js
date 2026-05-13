@@ -13,6 +13,7 @@ import {
   restoreReward,
   deActivateReward,
   reActivateReward,
+  redeemReward,
 } from "./reward_controller.js";
 
 import {
@@ -82,6 +83,13 @@ router.patch(
   isAuthorized("parent"),
   isValid(idRewardSchema),
   catchErorr(reActivateReward),
+);
+router.patch(
+  "/:rewardId/redeem",
+  isAuthenticated,
+  isAuthorized("child"),
+  isValid(idRewardSchema),
+  catchErorr(redeemReward),
 );
 
 export default router;
