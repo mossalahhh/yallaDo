@@ -72,3 +72,26 @@ export const linkAccounts = async (req, res, next) => {
     await session.endSession();
   }
 };
+
+export const myParents = async (req, res, next) => {
+  const child = await Child.findOne({ userId: req.user._id }).populate({
+    path: "parents",
+    select: "age",
+    populate: {
+      path: "userId",
+      select: " -_id name dateOfBirth profilePic",
+    },
+  });
+  if (!child) {
+    return next(new Error("Parent profile not found", { cause: 404 }));
+  }
+
+  const parents = child.parents.map((parent) => ({
+    parentId: parent._id,
+    avater: parent.userId.profilePic,
+    name: parent.userId.name,
+    age: parent.userId.age,
+  }));
+
+  return res.status(200).json({ success: true, results: parents });
+};

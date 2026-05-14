@@ -4,7 +4,7 @@ import { isAuthenticated } from "../../middleware/authentication.js";
 import { isValid } from "../../middleware/validation_middleware.js";
 import { catchErorr } from "../../utils/catchErorr.js";
 import { linkAccountsSchema } from "./child_validation.js";
-import { linkAccounts } from "./child_controller.js";
+import { linkAccounts, myParents } from "./child_controller.js";
 const router = Router();
 
 router.post(
@@ -15,6 +15,12 @@ router.post(
   catchErorr(linkAccounts),
 );
 //get my parents
+router.get(
+  "/my-parents",
+  isAuthenticated,
+  isAuthorized("child"),
+  catchErorr(myParents),
+);
 //get my status
 //get my rank
 export default router;
