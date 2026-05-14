@@ -3,6 +3,7 @@ import cloudinary from "../../utils/cloudinary.js";
 import Parent from "../../../Db/models/parent_model.js";
 import Child from "../../../Db/models/child_model.js";
 import History from "../../../Db/models/history_mode.js";
+import Notification from "../../../Db/models/notification_model.js";
 import mongoose from "mongoose";
 
 export const createTask = async (req, res, next) => {
@@ -98,6 +99,50 @@ export const createTask = async (req, res, next) => {
 
     await task.save();
   }
+
+  //create Notification
+  if (task.type === "personal") {
+    await Notification.create({
+      receiver: child._id,
+      receiverModel: "Child",
+
+      sender: parent._id,
+      senderModel: "Parent",
+
+      title: "New Personal Task",
+      message: `${task.title} has been assigned to you`,
+
+      type: "new_personal_task",
+
+      relatedId: task._id,
+      relatedModel: "Task",
+    });
+  } else {
+    // notify all linked children about open task
+
+    const children = await Child.find({
+      parents: parent._id,
+    }).select("_id");
+
+    const notifications = children.map((child) => ({
+      receiver: child._id,
+      receiverModel: "Child",
+
+      sender: parent._id,
+      senderModel: "Parent",
+
+      title: "New Open Task",
+      message: `A new open task "${task.title}" is available`,
+
+      type: "new_open_task",
+
+      relatedId: task._id,
+      relatedModel: "Task",
+    }));
+
+    await Notification.insertMany(notifications);
+  }
+
   //clean res
   const taskResObj = {
     taskId: task._id,
