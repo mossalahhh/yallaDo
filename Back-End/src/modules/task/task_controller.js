@@ -233,7 +233,11 @@ export const claimTask = async (req, res, next) => {
   if (!task) {
     return next(new Error("Task already claimed Or Not Found", { cause: 400 }));
   }
-  const parent = await Parent.findOneAndDelete({ _id: task.createdBy });
+
+  const parent = await Parent.findOne({ _id: task.createdBy });
+  if (!parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
+  }
 
   const childUser = await User.findById(child.userId).select("name");
 
@@ -329,6 +333,28 @@ export const submitTask = async (req, res, next) => {
   task.status = "submitted";
 
   await task.save();
+
+  const parent = await Parent.findOne({ _id: task.createdBy });
+  if (!parent) {
+    return next(new Error("Parent not found", { cause: 404 }));
+  }
+  const childUser = await User.findById(child.userId).select("name");
+
+  await Notification.create({
+    receiver: parent._id,
+    receiverModel: "Parent",
+
+    sender: child._id,
+    senderModel: "Child",
+
+    title: "Task Submitted",
+    message: `${task.title} was submitted by ${childUser.name}`,
+
+    type: "task_submitted",
+
+    relatedId: task._id,
+    relatedModel: "Task",
+  });
 
   return res
     .status(200)
