@@ -12,6 +12,7 @@ import {
   getNotifications,
   readNot,
   readallNot,
+  deleteNot,
 } from "./notification_controller.js";
 
 const router = Router();
@@ -30,6 +31,13 @@ router.patch(
   isAuthenticated,
   isValid(idNotSchema),
   catchErorr(readNot),
+);
+
+router.delete(
+  "/:notificationId/delete",
+  isAuthenticated,
+  isValid(idNotSchema),
+  catchErorr(deleteNot),
 );
 
 export default router;
