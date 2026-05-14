@@ -7,7 +7,12 @@ import {
   getNotififcationSchema,
   idNotSchema,
 } from "./notification_validation.js";
-import { getNotifications, readNot } from "./notification_controller.js";
+
+import {
+  getNotifications,
+  readNot,
+  readallNot,
+} from "./notification_controller.js";
 
 const router = Router();
 
@@ -17,6 +22,8 @@ router.get(
   isValid(getNotififcationSchema),
   catchErorr(getNotifications),
 );
+
+router.patch("/readall", isAuthenticated, catchErorr(readallNot));
 
 router.patch(
   "/:notificationId/read",

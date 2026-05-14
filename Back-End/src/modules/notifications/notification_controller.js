@@ -89,3 +89,51 @@ export const readNot = async (req, res, next) => {
     notification,
   });
 };
+
+export const readallNot = async (req, res, next) => {
+  const user = req.user;
+
+  const parent = await Parent.findOne({
+    userId: user._id,
+  });
+
+  const child = await Child.findOne({
+    userId: user._id,
+  });
+
+  if (user.role === "parent" && !parent) {
+    return next(
+      new Error("Parent profile not found", {
+        cause: 404,
+      }),
+    );
+  }
+
+  if (user.role === "child" && !child) {
+    return next(
+      new Error("Child profile not found", {
+        cause: 404,
+      }),
+    );
+  }
+
+  const receiverId = user.role === "parent" ? parent._id : child._id;
+
+  const result = await Notification.updateMany(
+    {
+      receiver: receiverId,
+      isRead: false,
+    },
+    {
+      isRead: true,
+      readAt: new Date(),
+    },
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "All notifications marked as read",
+    matched: result.matchedCount,
+    updated: result.modifiedCount,
+  });
+};
