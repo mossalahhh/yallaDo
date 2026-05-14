@@ -3,6 +3,7 @@ import Parent from "../../../Db/models/parent_model.js";
 import Child from "../../../Db/models/child_model.js";
 import Reward from "../../../Db/models/reward_model.js";
 import cloudinary from "../../utils/cloudinary.js";
+import Notification from "../../../Db/models/notification_model.js";
 import mongoose from "mongoose";
 
 export const addReward = async (req, res, next) => {
@@ -31,6 +32,27 @@ export const addReward = async (req, res, next) => {
 
     await reward.save();
   }
+
+  const children = await Child.find({
+    parents: parent._id,
+  }).select("_id");
+
+  const notifications = children.map((child) => ({
+    receiver: child._id,
+    receiverModel: "Child",
+
+    sender: parent._id,
+    senderModel: "Parent",
+
+    title: "New Reward at Store",
+    message: `A new reward "${reward.name}" is available`,
+
+    type: "reward_created",
+
+    relatedId: reward._id,
+    relatedModel: "Reward",
+  }));
+  await Notification.insertMany(notifications);
 
   return res
     .status(201)
