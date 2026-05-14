@@ -227,3 +227,44 @@ export const deleteallNot = async (req, res, next) => {
     updated: result.modifiedCount,
   });
 };
+
+export const countNot = async (req, res, next) => {
+  const user = req.user;
+
+  const parent = await Parent.findOne({
+    userId: user._id,
+  });
+
+  const child = await Child.findOne({
+    userId: user._id,
+  });
+
+  if (user.role === "parent" && !parent) {
+    return next(
+      new Error("Parent profile not found", {
+        cause: 404,
+      }),
+    );
+  }
+
+  if (user.role === "child" && !child) {
+    return next(
+      new Error("Child profile not found", {
+        cause: 404,
+      }),
+    );
+  }
+
+  const receiverId = user.role === "parent" ? parent._id : child._id;
+
+  const result = await Notification.find({
+    receiver: receiverId,
+  });
+
+  const count = result.length;
+
+  return res.status(200).json({
+    success: true,
+    count,
+  });
+};

@@ -14,6 +14,7 @@ import {
   readallNot,
   deleteNot,
   deleteallNot,
+  countNot,
 } from "./notification_controller.js";
 
 const router = Router();
@@ -28,6 +29,8 @@ router.get(
 router.patch("/readall", isAuthenticated, catchErorr(readallNot));
 
 router.delete("/deleteall", isAuthenticated, catchErorr(deleteallNot));
+
+router.get("/count", isAuthenticated, catchErorr(countNot));
 
 router.patch(
   "/:notificationId/read",
