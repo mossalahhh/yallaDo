@@ -4,6 +4,7 @@ import Parent from "../../../Db/models/parent_model.js";
 import Child from "../../../Db/models/child_model.js";
 import History from "../../../Db/models/history_mode.js";
 import Notification from "../../../Db/models/notification_model.js";
+import User from "../../../Db/models/user_model.js";
 import mongoose from "mongoose";
 
 export const createTask = async (req, res, next) => {
@@ -230,8 +231,27 @@ export const claimTask = async (req, res, next) => {
   );
 
   if (!task) {
-    return next(new Error("Task already claimed", { cause: 400 }));
+    return next(new Error("Task already claimed Or Not Found", { cause: 400 }));
   }
+  const parent = await Parent.findOneAndDelete({ _id: task.createdBy });
+
+  const childUser = await User.findById(child.userId).select("name");
+
+  await Notification.create({
+    receiver: parent._id,
+    receiverModel: "Parent",
+
+    sender: child._id,
+    senderModel: "Child",
+
+    title: "Task Claimed",
+    message: `${task.title} was claimed by ${childUser.name}`,
+
+    type: "task_claimed",
+
+    relatedId: task._id,
+    relatedModel: "Task",
+  });
 
   return res.json({ sucess: true, data: task });
 };
