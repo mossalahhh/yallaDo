@@ -1,4 +1,5 @@
 import mongoose, { Schema, Types, model } from "mongoose";
+import { queryHelperPlugin } from "../query_helpers.js";
 
 const notificationSchema = new Schema(
   {
@@ -111,6 +112,7 @@ notificationSchema.set("toJSON", {
 
 notificationSchema.index({ receiver: 1, isRead: 1, createdAt: -1 });
 
+notificationSchema.plugin(queryHelperPlugin);
 const Notification =
   mongoose.models.Notification || model("Notification", notificationSchema);
 

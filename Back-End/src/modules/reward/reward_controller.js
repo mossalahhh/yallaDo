@@ -46,7 +46,7 @@ export const addReward = async (req, res, next) => {
     senderModel: "Parent",
 
     title: "New Reward at Store",
-    message: `A new reward "${reward.name}" is available`,
+    message: `A new reward "${name}" is available`,
 
     type: "reward_created",
 
@@ -354,7 +354,7 @@ export const redeemReward = async (req, res, next) => {
           senderModel: "Child",
 
           title: "Reward Redeemed",
-          message: `Reward Redeemd By ${childUser.name}`,
+          message: `Reward ${reward.name} Redeemd By ${childUser.name}`,
 
           type: "reward_redeemed",
 
