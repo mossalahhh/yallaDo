@@ -496,10 +496,10 @@ export const rejectTask = async (req, res, next) => {
     sender: parent._id,
     senderModel: "Parent",
 
-    title: "task_rejected",
+    title: "Task Rejected",
     message: `Your Task "${task.title}" was rejected`,
 
-    type: "task_approved",
+    type: "task_rejected",
 
     relatedId: task._id,
     relatedModel: "Task",

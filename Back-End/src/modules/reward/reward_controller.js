@@ -4,6 +4,7 @@ import Child from "../../../Db/models/child_model.js";
 import Reward from "../../../Db/models/reward_model.js";
 import cloudinary from "../../utils/cloudinary.js";
 import Notification from "../../../Db/models/notification_model.js";
+import User from "../../../Db/models/user_model.js";
 import mongoose from "mongoose";
 
 export const addReward = async (req, res, next) => {
@@ -322,15 +323,43 @@ export const redeemReward = async (req, res, next) => {
 
     await reward.save({ session });
 
+    const parent = await Parent.findOne({ _id: reward.createdBy });
+
+    if (!parent) {
+      return next(new Error("Parent Profile Not Found"));
+    }
+
     await History.create(
       [
         {
           childId: child._id,
-          parentId: reward.createdBy,
+          parentId: parent._id,
           points: reward.points,
           source: "reward",
           type: "remove",
           reason: "claim reward",
+        },
+      ],
+      { session },
+    );
+    const childUser = await User.findById(child.userId).select("name");
+
+    await Notification.create(
+      [
+        {
+          receiver: parent._id,
+          receiverModel: "Parent",
+
+          sender: child._id,
+          senderModel: "Child",
+
+          title: "Reward Redeemed",
+          message: `Reward Redeemd By ${childUser.name}`,
+
+          type: "reward_redeemed",
+
+          relatedId: reward._id,
+          relatedModel: "Reward",
         },
       ],
       { session },
