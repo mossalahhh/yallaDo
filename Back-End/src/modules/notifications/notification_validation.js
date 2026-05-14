@@ -8,3 +8,7 @@ export const getNotififcationSchema = Joi.object({
   type: Joi.string().optional(),
   isRead: Joi.boolean().optional(),
 });
+
+export const idNotSchema = Joi.object({
+  notificationId: Joi.string().custom(isValidObject).required(),
+});
