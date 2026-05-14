@@ -422,6 +422,28 @@ export const approveTask = async (req, res, next) => {
       ],
       { session },
     );
+
+    await Notification.create(
+      [
+        {
+          receiver: childId,
+          receiverModel: "Child",
+
+          sender: parent._id,
+          senderModel: "Parent",
+
+          title: "Task aprroved",
+          message: `Your Task "${task.title}" was approved`,
+
+          type: "task_approved",
+
+          relatedId: task._id,
+          relatedModel: "Task",
+        },
+      ],
+      { session },
+    );
+
     await session.commitTransaction();
 
     return res.status(200).json({ success: true, message: "Task Approved" });
@@ -460,6 +482,28 @@ export const rejectTask = async (req, res, next) => {
   task.rejectionReason = rejectionReason;
   task.status = "rejected";
   await task.save();
+
+  const childId = task.claimedBy || task.assignedTo;
+  console.log(childId);
+  if (!childId) {
+    return next(new Error("Task has no assigned child", { cause: 400 }));
+  }
+
+  await Notification.create({
+    receiver: childId,
+    receiverModel: "Child",
+
+    sender: parent._id,
+    senderModel: "Parent",
+
+    title: "task_rejected",
+    message: `Your Task "${task.title}" was rejected`,
+
+    type: "task_approved",
+
+    relatedId: task._id,
+    relatedModel: "Task",
+  });
 
   return res
     .status(200)
