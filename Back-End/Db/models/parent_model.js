@@ -8,11 +8,6 @@ const parentSchema = new Schema(
       required: true,
       unique: true,
     },
-    phoneNum: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
     children: [
       {
         type: Types.ObjectId,
