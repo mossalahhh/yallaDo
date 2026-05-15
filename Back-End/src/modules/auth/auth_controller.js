@@ -85,6 +85,7 @@ export const register = async (req, res, next) => {
       email,
       role,
       profileId: profile._id,
+      avatar: user.profilePic,
     },
   });
 };
