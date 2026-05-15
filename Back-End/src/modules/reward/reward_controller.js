@@ -16,9 +16,13 @@ export const addReward = async (req, res, next) => {
   }
   const createdBy = parent._id;
 
-  const reward = await Reward.create([
-    { name, description, points, quantity, createdBy },
-  ]);
+  const reward = await Reward.create({
+    name,
+    description,
+    points,
+    quantity,
+    createdBy,
+  });
 
   if (req.file) {
     const { secure_url, public_id } = await cloudinary.uploader.upload(
