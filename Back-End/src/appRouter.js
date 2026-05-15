@@ -11,6 +11,23 @@ export const appRouter = (app, express) => {
   if (process.env.NODE_ENV === "dev") {
     app.use(morgan("common"));
   }
+
+  //undefined for postman requests
+  //null for fs
+  const whiteList = [undefined, null, "http://127.0.0.1:5500"];
+  app.use((req, res, next) => {
+    //handle requests from front-end
+    if (!whiteList.includes(req.header("origin"))) {
+      return next(new Error("Blocked By CORS"));
+    }
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "*");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+    //to allow request for localHost
+    res.setHeader("Access-Control-Allow-Private-Network", true);
+    return next();
+  });
+
   //parse express data
   app.use(express.json());
 
