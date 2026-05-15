@@ -11,6 +11,7 @@ const parentSchema = new Schema(
     phoneNum: {
       type: String,
       unique: true,
+      sparse: true,
     },
     children: [
       {
