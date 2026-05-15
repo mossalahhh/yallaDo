@@ -149,3 +149,26 @@ export const myStats = async (req, res, next) => {
 
   return res.status(200).json({ success: true, lastActivity, stats });
 };
+
+export const myRank = async (req, res, next) => {
+  const child = await Child.findOne({
+    userId: req.user._id,
+  });
+
+  if (!child) {
+    return next(new Error("child profile not found", { cause: 404 }));
+  }
+
+  const higherRanks = await Child.countDocuments({
+    parents: { $in: child.parents },
+    totalPoints: { $gt: child.totalPoints },
+  });
+
+  const rank = higherRanks + 1;
+
+  return res.status(200).json({
+    success: true,
+    rank,
+    points: child.totalPoints,
+  });
+};
