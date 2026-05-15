@@ -1,6 +1,8 @@
 import Child from "../../../Db/models/child_model.js";
 import Parent from "../../../Db/models/parent_model.js";
 import mongoose from "mongoose";
+import Task from "../../../Db/models/task_model.js";
+import History from "../../../Db/models/history_mode.js";
 
 export const linkAccounts = async (req, res, next) => {
   //get data
@@ -94,4 +96,56 @@ export const myParents = async (req, res, next) => {
   }));
 
   return res.status(200).json({ success: true, results: parents });
+};
+
+export const myStats = async (req, res, next) => {
+  const child = await Child.findOne({ userId: req.user._id });
+
+  const lastActivity = await History.findOne({ childId: child._id }).sort({
+    createdAt: -1,
+  });
+
+  const taskStats = await Task.aggregate([
+    {
+      $match: {
+        $or: [{ assignedTo: child._id }, { claimedBy: child._id }],
+        isDeleted: { $ne: true },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+        approved: { $sum: { $cond: [{ $eq: ["$status", "approved"] }, 1, 0] } },
+        rejected: { $sum: { $cond: [{ $eq: ["$status", "rejeted"] }, 1, 0] } },
+        pending: {
+          $sum: {
+            $cond: [
+              { $in: ["$status", ["pending", "claimed", "submitted"]] },
+              1,
+              0,
+            ],
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        total: 1,
+        approved: 1,
+        rejected: 1,
+        pending: 1,
+      },
+    },
+  ]);
+
+  const stats = taskStats[0] || {
+    total: 0,
+    approved: 0,
+    rejected: 0,
+    pending: 0,
+  };
+
+  return res.status(200).json({ success: true, lastActivity, stats });
 };
