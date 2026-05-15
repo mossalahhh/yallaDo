@@ -172,3 +172,17 @@ export const myRank = async (req, res, next) => {
     points: child.totalPoints,
   });
 };
+
+export const myPoints = async (req, res, next) => {
+  const child = await Child.findOne({
+    userId: req.user._id,
+  });
+
+  if (!child) {
+    return next(new Error("child profile not found", { cause: 404 }));
+  }
+
+  const points = child.totalPoints;
+
+  return res.status(200).json({ success: true, points });
+};

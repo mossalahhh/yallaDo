@@ -9,6 +9,7 @@ import {
   myParents,
   myStats,
   myRank,
+  myPoints,
 } from "./child_controller.js";
 const router = Router();
 
@@ -39,5 +40,11 @@ router.get(
   isAuthenticated,
   isAuthorized("child"),
   catchErorr(myRank),
+);
+router.get(
+  "/my-points",
+  isAuthenticated,
+  isAuthorized("child"),
+  catchErorr(myPoints),
 );
 export default router;

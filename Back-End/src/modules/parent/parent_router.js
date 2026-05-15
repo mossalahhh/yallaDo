@@ -41,7 +41,7 @@ router.get(
 );
 
 router.delete(
-  "/:childId",
+  "/:childId/unlink",
   isAuthenticated,
   isValid(childIdSchema),
   isAuthorized("parent"),
