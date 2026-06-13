@@ -586,8 +586,8 @@ export const progressTasks = async (req, res, next) => {
       $project: {
         _id: 1,
         childName: 1,
-        totalTasks: 1,
-        approvedTasks: 1,
+        // totalTasks: 1,
+        // approvedTasks: 1,
         approvedPercentage: {
           $cond: {
             if: { $gt: ["$totalTasks", 0] },
