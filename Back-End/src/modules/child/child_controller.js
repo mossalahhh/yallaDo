@@ -186,3 +186,40 @@ export const myPoints = async (req, res, next) => {
 
   return res.status(200).json({ success: true, points });
 };
+
+export const topThree = async (req, res, next) => {
+  const child = await Child.findOne({
+    userId: req.user._id,
+  });
+
+  if (!child) {
+    return next(
+      new Error("Child profile not found", {
+        cause: 404,
+      }),
+    );
+  }
+
+  const children = await Child.find({
+    parents: { $in: child.parents },
+  }).populate({
+    path: "userId",
+    select: "name profilePic",
+  });
+
+  const leaderboard = children
+    .map((c) => ({
+      childId: c._id,
+      avatar: c.userId?.profilePic,
+      name: c.userId?.name,
+      points: c.totalPoints,
+    }))
+    .sort((a, b) => b.points - a.points);
+
+  const top3 = leaderboard.slice(0, 3);
+
+  return res.status(200).json({
+    success: true,
+    top3,
+  });
+};

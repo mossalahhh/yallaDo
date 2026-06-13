@@ -483,34 +483,34 @@ export const pointsOverTime = async (req, res, next) => {
   return res.status(200).json({ success: true, results: PointsAnalytics });
 };
 
-export const topThree = async (req, res, next) => {
-  //getparent
-  const parent = await Parent.findOne({ userId: req.user._id }).populate({
-    path: "children",
-    select: "_id userId totalPoints",
-    populate: {
-      path: "userId",
-      select: "name profilePic",
-    },
-  });
-  //check parent
-  if (!parent) {
-    return next(new Error("Parent profile not found", { cause: 404 }));
-  }
+// export const topThree = async (req, res, next) => {
+//   //getparent
+//   const parent = await Parent.findOne({ userId: req.user._id }).populate({
+//     path: "children",
+//     select: "_id userId totalPoints",
+//     populate: {
+//       path: "userId",
+//       select: "name profilePic",
+//     },
+//   });
+//   //check parent
+//   if (!parent) {
+//     return next(new Error("Parent profile not found", { cause: 404 }));
+//   }
 
-  //map to enhance response
-  const children = parent.children.map((child) => ({
-    childId: child._id,
-    avatar: child.userId.profilePic,
-    name: child.userId.name,
-    points: child.totalPoints,
-  }));
+//   //map to enhance response
+//   const children = parent.children.map((child) => ({
+//     childId: child._id,
+//     avatar: child.userId.profilePic,
+//     name: child.userId.name,
+//     points: child.totalPoints,
+//   }));
 
-  children.sort((a, b) => {
-    return b.points - a.points;
-  });
+//   children.sort((a, b) => {
+//     return b.points - a.points;
+//   });
 
-  const top3 = children.slice(0, 3);
+//   const top3 = children.slice(0, 3);
 
-  return res.status(200).json({ success: true, top3 });
-};
+//   return res.status(200).json({ success: true, top3 });
+// };

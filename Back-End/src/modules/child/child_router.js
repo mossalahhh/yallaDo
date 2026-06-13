@@ -10,6 +10,7 @@ import {
   myStats,
   myRank,
   myPoints,
+  topThree,
 } from "./child_controller.js";
 const router = Router();
 
@@ -46,5 +47,11 @@ router.get(
   isAuthenticated,
   isAuthorized("child"),
   catchErorr(myPoints),
+);
+router.get(
+  "/top-children",
+  isAuthenticated,
+  isAuthorized("child"),
+  catchErorr(topThree),
 );
 export default router;
