@@ -518,10 +518,14 @@ export const pointsOverTime = async (req, res, next) => {
 export const progressTasks = async (req, res, next) => {
   const parentId = await Parent.findOne({ _id: req.user._id });
 
+  if (!parent) {
+    return next(new Error("Parent profile not found", { cause: 404 }));
+  }
+
   const stats = await Child.aggregate([
     {
       $match: {
-        parents: new mongoose.Types.ObjectId(parentId),
+        parents: new mongoose.Types.ObjectId(parentId._id),
       },
     },
 
