@@ -111,8 +111,8 @@ export const unLinkChild = async (req, res, next) => {
       sender: parent._id,
       senderModel: "Parent",
 
-      title: "Unlink",
-      message: `Your Parent ${parentName} Removed You From Family`,
+      title: "Family Unlinked",
+      message: `Your connection with ${parentName}'s family account has been removed.`,
 
       type: "parent_unlink",
 
