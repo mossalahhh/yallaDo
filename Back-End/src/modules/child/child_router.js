@@ -8,7 +8,7 @@ import {
   linkAccounts,
   myParents,
   myStats,
-  myRank,
+  // myRank,
   myPoints,
   topThree,
 } from "./child_controller.js";
@@ -36,12 +36,12 @@ router.get(
   catchErorr(myStats),
 );
 //get my rank
-router.get(
-  "/my-rank",
-  isAuthenticated,
-  isAuthorized("child"),
-  catchErorr(myRank),
-);
+// router.get(
+//   "/my-rank",
+//   isAuthenticated,
+//   isAuthorized("child"),
+//   catchErorr(myRank),
+// );
 router.get(
   "/my-points",
   isAuthenticated,
