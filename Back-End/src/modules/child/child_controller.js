@@ -207,12 +207,12 @@ export const topThree = async (req, res, next) => {
     select: "name profilePic",
   });
 
-  const higherRanks = await Child.countDocuments({
-    parents: { $in: child.parents },
-    totalPoints: { $gt: child.totalPoints },
-  });
+  // const higherRanks = await Child.countDocuments({
+  //   parents: { $in: child.parents },
+  //   totalPoints: { $gt: child.totalPoints },
+  // });
 
-  const rank = higherRanks + 1;
+  // const rank = higherRanks + 1;
 
   const leaderboard = children
     .map((c) => ({
@@ -223,11 +223,16 @@ export const topThree = async (req, res, next) => {
     }))
     .sort((a, b) => b.points - a.points);
 
+  const myRank =
+    leaderboard.findIndex(
+      (c) => c.childId.toString() === child._id.toString(),
+    ) + 1;
+
   const top3 = leaderboard.slice(0, 3);
 
   return res.status(200).json({
     success: true,
-    rank,
+    myRank,
     top3,
   });
 };
