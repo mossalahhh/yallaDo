@@ -516,7 +516,7 @@ export const pointsOverTime = async (req, res, next) => {
 // };
 
 export const progressTasks = async (req, res, next) => {
-  const parentId = await Parent.findOne({ _id: req.user._id });
+  const parentId = await Parent.findOne({ userId: req.user._id });
 
   if (!parentId) {
     return next(new Error("Parent profile not found", { cause: 404 }));
