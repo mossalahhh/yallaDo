@@ -150,28 +150,28 @@ export const myStats = async (req, res, next) => {
   return res.status(200).json({ success: true, lastActivity, stats });
 };
 
-export const myRank = async (req, res, next) => {
-  const child = await Child.findOne({
-    userId: req.user._id,
-  });
+// export const myRank = async (req, res, next) => {
+//   const child = await Child.findOne({
+//     userId: req.user._id,
+//   });
 
-  if (!child) {
-    return next(new Error("child profile not found", { cause: 404 }));
-  }
+//   if (!child) {
+//     return next(new Error("child profile not found", { cause: 404 }));
+//   }
 
-  const higherRanks = await Child.countDocuments({
-    parents: { $in: child.parents },
-    totalPoints: { $gt: child.totalPoints },
-  });
+//   const higherRanks = await Child.countDocuments({
+//     parents: { $in: child.parents },
+//     totalPoints: { $gt: child.totalPoints },
+//   });
 
-  const rank = higherRanks + 1;
+//   const rank = higherRanks + 1;
 
-  return res.status(200).json({
-    success: true,
-    rank,
-    points: child.totalPoints,
-  });
-};
+//   return res.status(200).json({
+//     success: true,
+//     rank,
+//     points: child.totalPoints,
+//   });
+// };
 
 export const myPoints = async (req, res, next) => {
   const child = await Child.findOne({
@@ -207,6 +207,13 @@ export const topThree = async (req, res, next) => {
     select: "name profilePic",
   });
 
+  const higherRanks = await Child.countDocuments({
+    parents: { $in: child.parents },
+    totalPoints: { $gt: child.totalPoints },
+  });
+
+  const rank = higherRanks + 1;
+
   const leaderboard = children
     .map((c) => ({
       childId: c._id,
@@ -220,6 +227,7 @@ export const topThree = async (req, res, next) => {
 
   return res.status(200).json({
     success: true,
+    rank,
     top3,
   });
 };
