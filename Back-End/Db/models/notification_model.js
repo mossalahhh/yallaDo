@@ -53,6 +53,8 @@ const notificationSchema = new Schema(
 
         "points_added",
         "points_removed",
+
+        "parent_unlink",
       ],
       required: true,
     },
@@ -64,7 +66,7 @@ const notificationSchema = new Schema(
 
     relatedModel: {
       type: String,
-      enum: ["Task", "Reward"],
+      enum: ["Task", "Reward", "Child"],
     },
 
     isRead: {

@@ -2,8 +2,10 @@ import Child from "../../../Db/models/child_model.js";
 import Parent from "../../../Db/models/parent_model.js";
 import History from "../../../Db/models/history_mode.js";
 import RandomString from "randomstring";
+import Notification from "../../../Db/models/notification_model.js";
 import Task from "../../../Db/models/task_model.js";
 import mongoose from "mongoose";
+import User from "../../../Db/models/user_model.js";
 
 export const inviteCode = async (req, res, next) => {
   //generate code
@@ -98,6 +100,25 @@ export const unLinkChild = async (req, res, next) => {
       { $pull: { parents: parent._id } },
       { new: true, session },
     );
+
+    const user = await User.findOne({ _id: req.user._id });
+
+    //create Notification
+    await Notification.create({
+      receiver: child._id,
+      receiverModel: "Child",
+
+      sender: parent._id,
+      senderModel: "Parent",
+
+      title: "Unlink",
+      message: `Your Parent ${parentName} Removed You From Family`,
+
+      type: "parent_unlink",
+
+      relatedId: child._id,
+      relatedModel: "Child",
+    });
 
     await session.commitTransaction();
 
