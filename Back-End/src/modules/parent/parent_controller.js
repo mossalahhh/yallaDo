@@ -616,3 +616,79 @@ export const progressTasks = async (req, res, next) => {
     data: stats,
   });
 };
+
+export const categoryCompletionRate = async (req, res, next) => {
+  const parent = await Parent.findOne({
+    userId: req.user._id,
+  });
+
+  if (!parent) {
+    return next(
+      new Error("Parent profile not found", {
+        cause: 404,
+      }),
+    );
+  }
+
+  const stats = await Task.aggregate([
+    {
+      $match: {
+        createdBy: parent._id,
+        isDeleted: { $ne: true },
+      },
+    },
+
+    {
+      $group: {
+        _id: "$category",
+
+        totalTasks: {
+          $sum: 1,
+        },
+
+        approvedTasks: {
+          $sum: {
+            $cond: [{ $eq: ["$status", "approved"] }, 1, 0],
+          },
+        },
+      },
+    },
+
+    {
+      $project: {
+        _id: 0,
+
+        category: "$_id",
+
+        // totalTasks: 1,
+
+        // approvedTasks: 1,
+
+        completionRate: {
+          $round: [
+            {
+              $multiply: [
+                {
+                  $divide: ["$approvedTasks", "$totalTasks"],
+                },
+                100,
+              ],
+            },
+            2,
+          ],
+        },
+      },
+    },
+
+    {
+      $sort: {
+        completionRate: -1,
+      },
+    },
+  ]);
+
+  return res.status(200).json({
+    success: true,
+    stats,
+  });
+};

@@ -15,6 +15,7 @@ import {
   analytics,
   pointsOverTime,
   progressTasks,
+  categoryCompletionRate,
   // topThree,
 } from "./parent_controller.js";
 import {
@@ -104,6 +105,12 @@ router.get(
   isAuthenticated,
   isAuthorized("parent"),
   catchErorr(progressTasks),
+);
+router.get(
+  "/category-completion",
+  isAuthenticated,
+  isAuthorized("parent"),
+  catchErorr(categoryCompletionRate),
 );
 // router.get(
 //   "/top-children",
