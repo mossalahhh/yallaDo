@@ -78,7 +78,11 @@ export const myProfile = async (req, res, next) => {
       })
       .populate({
         path: "parents",
-        select: "_id ",
+        select: "userId",
+        populate: {
+          path: "userId",
+          select: "name",
+        },
       });
   }
 
@@ -105,7 +109,10 @@ export const myProfile = async (req, res, next) => {
       ? profile.children.length
       : 0;
   } else {
-    responseProfile.parentsCount = profile.parents ? profile.parents.length : 0;
+    responseProfile.parentNames =
+      profile.parents && profile.parents.length > 0
+        ? profile.parents.map((parent) => parent.userId.name).filter(Boolean)
+        : [];
   }
   return res.status(200).json({ success: true, profile: responseProfile });
 };
