@@ -516,7 +516,15 @@ export const pointsOverTime = async (req, res, next) => {
 // };
 
 export const progressTasks = async (req, res, next) => {
+  const parentId = await mongoose.findOne({ _id: req.user._id });
+
   const stats = await Child.aggregate([
+    {
+      $match: {
+        parents: new mongoose.Types.ObjectId(parentId),
+      },
+    },
+
     {
       $lookup: {
         from: "users",
