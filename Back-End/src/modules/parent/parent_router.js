@@ -14,6 +14,7 @@ import {
   dashborad,
   analytics,
   pointsOverTime,
+  progressTasks,
   // topThree,
 } from "./parent_controller.js";
 import {
@@ -97,6 +98,12 @@ router.get(
   isValid(pointAnalyticsSchema),
   isAuthorized("parent"),
   catchErorr(pointsOverTime),
+);
+router.get(
+  "/progress-completion",
+  isAuthenticated,
+  isAuthorized("parent"),
+  catchErorr(progressTasks),
 );
 // router.get(
 //   "/top-children",

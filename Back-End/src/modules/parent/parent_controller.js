@@ -514,3 +514,93 @@ export const pointsOverTime = async (req, res, next) => {
 
 //   return res.status(200).json({ success: true, top3 });
 // };
+
+export const progressTasks = async (req, res, next) => {
+  const stats = await Child.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "userInfo",
+      },
+    },
+
+    { $unwind: { path: "$userInfo", preserveNullAndEmptyArrays: true } },
+
+    {
+      $lookup: {
+        from: "tasks",
+        let: { childId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$isDeleted", false] },
+                  {
+                    $or: [
+                      { $eq: ["$assignedTo", "$$childId"] },
+                      { $eq: ["$claimedBy", "$$childId"] },
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        ],
+        as: "childTasks",
+      },
+    },
+
+    {
+      $project: {
+        _id: 1,
+        childName: "$userInfo.name",
+        totalTasks: { $size: "$childTasks" },
+        approvedTasks: {
+          $size: {
+            $filter: {
+              input: "$childTasks",
+              as: "task",
+              cond: { $eq: ["$$task.status", "approved"] },
+            },
+          },
+        },
+      },
+    },
+
+    {
+      $project: {
+        _id: 1,
+        childName: 1,
+        totalTasks: 1,
+        approvedTasks: 1,
+        approvedPercentage: {
+          $cond: {
+            if: { $gt: ["$totalTasks", 0] },
+            then: {
+              $round: [
+                {
+                  $multiply: [
+                    { $divide: ["$approvedTasks", "$totalTasks"] },
+                    100,
+                  ],
+                },
+                2,
+              ],
+            },
+            else: 0,
+          },
+        },
+      },
+    },
+
+    { $sort: { approvedPercentage: -1 } },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: stats,
+  });
+};
