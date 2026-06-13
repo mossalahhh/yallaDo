@@ -103,6 +103,7 @@ export const unLinkChild = async (req, res, next) => {
 
     const user = await User.findOne({ _id: req.user._id });
 
+    const parentName = user.name;
     //create Notification
     await Notification.create({
       receiver: child._id,
