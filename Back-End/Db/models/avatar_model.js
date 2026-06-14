@@ -7,10 +7,17 @@ const avatarSchema = new Schema(
       required: [true, "Avatar title is required"],
       trim: true,
     },
-    imageUrl: {
-      type: String,
-      required: [true, "Avatar image URL is required"],
-      trim: true,
+    image: {
+      url: {
+        type: String,
+        required: [true, "Avatar image URL is required"],
+        trim: true,
+      },
+      id: {
+        type: String,
+        required: [true, "Avatar image id is required"],
+        trim: true,
+      },
     },
     pointsRequired: {
       type: Number,
