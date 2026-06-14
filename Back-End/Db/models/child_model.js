@@ -24,6 +24,13 @@ const childSchema = new Schema(
       default: 0,
       min: 0,
     },
+
+    unlockedAvatars: [
+      {
+        type: Types.ObjectId,
+        ref: "Avatar",
+      },
+    ],
   },
   { timestamps: true },
 );
