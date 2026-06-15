@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import Task from "../../../Db/models/task_model.js";
 import History from "../../../Db/models/history_mode.js";
 import Avatar from "../../../Db/models/avatar_model.js";
+import User from "../../../Db/models/user_model.js";
 
 export const linkAccounts = async (req, res, next) => {
   //get data
