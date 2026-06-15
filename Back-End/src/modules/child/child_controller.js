@@ -239,7 +239,7 @@ export const topThree = async (req, res, next) => {
   });
 };
 
-export const getAvatars = async (req, res) => {
+export const getAvatars = async (req, res, next) => {
   const userId = req.user._id;
 
   const childData = await Child.findOne({ userId }).populate("unlockedAvatars");
@@ -282,7 +282,7 @@ export const getAvatars = async (req, res) => {
   });
 };
 
-export const selectAvatar = async (req, res) => {
+export const selectAvatar = async (req, res, next) => {
   const userId = req.user._id;
   const { avatarId } = req.params;
 
