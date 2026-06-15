@@ -263,7 +263,7 @@ export const claimTask = async (req, res, next) => {
 export const submitTask = async (req, res, next) => {
   //get data
   const { taskId } = req.params;
-  const description = req.body?.description;
+  // const description = req.body?.description;
 
   const task = await Task.findById({ _id: taskId });
 
@@ -298,19 +298,16 @@ export const submitTask = async (req, res, next) => {
   }
 
   //requirments
-  if (
-    (task.requirements.submissionType === "text" ||
-      task.requirements.submissionType === "both") &&
-    !description
-  ) {
-    return next(new Error("Description is required", { cause: 400 }));
-  }
+  // if (
+  //   (task.requirements.submissionType === "text" ||
+  //     task.requirements.submissionType === "both") &&
+  //   !description
+  // ) {
+  //   return next(new Error("Description is required", { cause: 400 }));
+  // }
 
   let images = [];
-  if (
-    task.requirements.submissionType === "image" ||
-    task.requirements.submissionType === "both"
-  ) {
+  if (task.requirements.submissionType === "image") {
     if (!req.files || req.files.length < task.requirements.minImages) {
       return next(new Error("Not enough images", { cause: 400 }));
     }
@@ -325,7 +322,7 @@ export const submitTask = async (req, res, next) => {
   }
 
   task.submission = {
-    description,
+    // description,
     images,
     submittedAt: new Date(),
   };

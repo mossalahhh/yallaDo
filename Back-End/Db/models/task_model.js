@@ -75,8 +75,7 @@ const taskSchema = new Schema(
     requirements: {
       submissionType: {
         type: String,
-        enum: ["text", "image", "both"],
-        default: "text",
+        enum: ["image"],
       },
       minImages: {
         type: Number,
@@ -86,10 +85,10 @@ const taskSchema = new Schema(
     },
 
     submission: {
-      description: {
-        type: String,
-        maxlength: [500, "Submission description too long"],
-      },
+      // description: {
+      //   type: String,
+      //   maxlength: [500, "Submission description too long"],
+      // },
       images: [
         {
           url: String,
