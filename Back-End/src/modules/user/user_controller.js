@@ -122,7 +122,7 @@ export const updateProfile = async (req, res, next) => {
   const user = await User.findByIdAndUpdate(
     req.user._id,
     { name: req.body.name, userName: req.body.userName },
-    { new: true },
+    { new: true, runValidators: true },
   );
 
   if (!user) {

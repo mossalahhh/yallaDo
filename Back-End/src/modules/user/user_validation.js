@@ -3,7 +3,7 @@ import joi from "joi";
 export const updateProfileSchema = joi
   .object({
     name: joi.string(),
-    userName: Joi.string(),
+    userName: joi.string(),
   })
   .options({ presence: "optional" });
 
