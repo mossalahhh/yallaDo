@@ -306,7 +306,7 @@ export const selectAvatar = async (req, res, next) => {
       avatar.isDefault || childData.unlockedAvatars.includes(avatarId);
 
     if (!isAlreadyUnlocked) {
-      const availablePoints = childData.totalPoints - childData.spentPoints;
+      const availablePoints = childData.totalPoints;
 
       if (availablePoints < avatar.pointsRequired) {
         return next(new Error("You Don't have enough points", { cause: 404 }));
