@@ -286,44 +286,73 @@ export const selectAvatar = async (req, res, next) => {
   const userId = req.user._id;
   const { avatarId } = req.params;
 
-  const avatar = await Avatar.findById(avatarId);
-  if (!avatar) {
-    return next(new Error("Avatar Not Found", { cause: 404 }));
-  }
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  const childData = await Child.findOne({ userId });
-  const userData = await User.findById(userId);
-
-  if (!childData || !userData) {
-    return next(new Error("User or Child profile not found", { cause: 404 }));
-  }
-
-  const isAlreadyUnlocked =
-    avatar.isDefault || childData.unlockedAvatars.includes(avatarId);
-
-  if (!isAlreadyUnlocked) {
-    const availablePoints = childData.totalPoints - childData.spentPoints;
-
-    if (availablePoints < avatar.pointsRequired) {
-      return next(new Error("You Don't have enough points", { cause: 404 }));
+  try {
+    const avatar = await Avatar.findById(avatarId).session(session);
+    if (!avatar) {
+      return next(new Error("Avatar Not Found", { cause: 404 }));
     }
 
-    childData.spentPoints += avatar.pointsRequired;
-    childData.unlockedAvatars.push(avatarId);
-    await childData.save();
+    const childData = await Child.findOne({ userId }).session(session);
+    const userData = await User.findById(userId).session(session);
+
+    if (!childData || !userData) {
+      return next(new Error("User or Child profile not found", { cause: 404 }));
+    }
+
+    const isAlreadyUnlocked =
+      avatar.isDefault || childData.unlockedAvatars.includes(avatarId);
+
+    if (!isAlreadyUnlocked) {
+      const availablePoints = childData.totalPoints - childData.spentPoints;
+
+      if (availablePoints < avatar.pointsRequired) {
+        return next(new Error("You Don't have enough points", { cause: 404 }));
+      }
+
+      childData.spentPoints += avatar.pointsRequired;
+      childData.unlockedAvatars.push(avatarId);
+      await childData.save({ session });
+
+      await History.create(
+        [
+          {
+            childId: childData._id,
+            parentId:
+              childData.parents && childData.parents[0]
+                ? childData.parents[0]
+                : null,
+            points: avatar.pointsRequired,
+            source: "avatar",
+            type: "remove",
+            reason: `Purchase Avatar: ${avatar.title}`, // سبب الخصم
+          },
+        ],
+        { session },
+      );
+    }
+
+    userData.profilePic = {
+      url: avatar.image.url,
+      id: avatar.image.id,
+    };
+    await userData.save({ session });
+
+    await session.commitTransaction();
+
+    return res.status(200).json({
+      success: true,
+      message: isAlreadyUnlocked
+        ? "Avatar Changed successfully"
+        : "The avatar was successfully purchased and changed.",
+      profilePic: userData.profilePic,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    next(error);
+  } finally {
+    await session.endSession();
   }
-
-  userData.profilePic = {
-    url: avatar.image.url,
-    id: avatar.image.id,
-  };
-  await userData.save();
-
-  return res.status(200).json({
-    success: true,
-    message: isAlreadyUnlocked
-      ? "Avatar Changed successfully"
-      : "The avatar was successfully purchased and changed.",
-    profilePic: userData.profilePic,
-  });
 };

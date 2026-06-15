@@ -23,7 +23,7 @@ const historySchema = new Schema(
     },
     source: {
       type: String,
-      enum: ["manual", "task", "reward"],
+      enum: ["manual", "task", "reward", "avatar"],
     },
     reason: String,
   },
