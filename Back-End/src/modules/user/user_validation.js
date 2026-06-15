@@ -5,7 +5,7 @@ export const updateProfileSchema = joi
     name: joi.string(),
     userName: Joi.string(),
   })
-  .options({ presence: "required" });
+  .options({ presence: "optional" });
 
 export const changeEmailScehma = joi
   .object({
