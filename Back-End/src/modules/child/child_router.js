@@ -11,6 +11,8 @@ import {
   // myRank,
   myPoints,
   topThree,
+  getAvatars,
+  selectAvatar,
 } from "./child_controller.js";
 const router = Router();
 
@@ -53,5 +55,17 @@ router.get(
   isAuthenticated,
   isAuthorized("child"),
   catchErorr(topThree),
+);
+router.get(
+  "/avatars",
+  isAuthenticated,
+  isAuthorized("child"),
+  catchErorr(getAvatars),
+);
+router.post(
+  "/:avatarId/select",
+  isAuthenticated,
+  isAuthorized("child"),
+  catchErorr(selectAvatar),
 );
 export default router;

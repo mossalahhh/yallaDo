@@ -3,6 +3,7 @@ import Parent from "../../../Db/models/parent_model.js";
 import mongoose from "mongoose";
 import Task from "../../../Db/models/task_model.js";
 import History from "../../../Db/models/history_mode.js";
+import Avatar from "../../../Db/models/avatar_model.js";
 
 export const linkAccounts = async (req, res, next) => {
   //get data
@@ -234,5 +235,94 @@ export const topThree = async (req, res, next) => {
     success: true,
     myRank,
     top3,
+  });
+};
+
+export const getAvatars = async (req, res) => {
+  const userId = req.user._id;
+
+  const childData = await Child.findOne({ userId }).populate("unlockedAvatars");
+  const userData = await User.findById(userId);
+
+  if (!childData) {
+    return next(new Error("child profile not found", { cause: 404 }));
+  }
+
+  const allAvatars = await Avatar.find();
+
+  const formattedAvatars = allAvatars.map((avatar) => {
+    let status = "locked";
+
+    if (userData.profilePic && userData.profilePic.url === avatar.image.url) {
+      status = "selected";
+    } else if (
+      avatar.isDefault ||
+      childData.unlockedAvatars.some(
+        (unlockedId) => unlockedId.toString() === avatar._id.toString(),
+      )
+    ) {
+      status = "unlocked";
+    }
+
+    return {
+      avatarId: avatar._id,
+      title: avatar.title,
+      image: avatar.image,
+      pointsRequired: avatar.pointsRequired,
+      isDefault: avatar.isDefault,
+      status: status, // "selected" | "unlocked" | "locked"
+    };
+  });
+
+  return res.status(200).json({
+    success: true,
+    // currentPoints: childData.totalPoints - childData.spentPoints,
+    avatars: formattedAvatars,
+  });
+};
+
+export const selectAvatar = async (req, res) => {
+  const userId = req.user._id;
+  const { avatarId } = req.params;
+
+  const avatar = await Avatar.findById(avatarId);
+  if (!avatar) {
+    return next(new Error("Avatar Not Found", { cause: 404 }));
+  }
+
+  const childData = await Child.findOne({ userId });
+  const userData = await User.findById(userId);
+
+  if (!childData || !userData) {
+    return next(new Error("User or Child profile not found", { cause: 404 }));
+  }
+
+  const isAlreadyUnlocked =
+    avatar.isDefault || childData.unlockedAvatars.includes(avatarId);
+
+  if (!isAlreadyUnlocked) {
+    const availablePoints = childData.totalPoints - childData.spentPoints;
+
+    if (availablePoints < avatar.pointsRequired) {
+      return next(new Error("You Don't have enough points", { cause: 404 }));
+    }
+
+    childData.spentPoints += avatar.pointsRequired;
+    childData.unlockedAvatars.push(avatarId);
+    await childData.save();
+  }
+
+  userData.profilePic = {
+    url: avatar.image.url,
+    id: avatar.image.id,
+  };
+  await userData.save();
+
+  return res.status(200).json({
+    success: true,
+    message: isAlreadyUnlocked
+      ? "Avatar Changed successfully"
+      : "The avatar was successfully purchased and changed.",
+    profilePic: userData.profilePic,
   });
 };
