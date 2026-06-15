@@ -313,6 +313,7 @@ export const selectAvatar = async (req, res, next) => {
       }
 
       childData.spentPoints += avatar.pointsRequired;
+      childData.totalPoints -= avatar.pointsRequired;
       childData.unlockedAvatars.push(avatarId);
       await childData.save({ session });
 
