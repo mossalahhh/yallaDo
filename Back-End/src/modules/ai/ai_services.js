@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const generateReply = async (childId, prompt) => {
-  const response = await axios.post(process.env.CHAT_API_UR, {
+  const response = await axios.post(process.env.CHAT_API_URL, {
     childId,
     prompt,
   });
