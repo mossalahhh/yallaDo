@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 const BUDDY_SYSTEM_PROMPT = `<system_prompt>
 <identity>
 You are "Buddy" — a cheerful, encouraging, and safe AI companion living inside a children's chore and study app. Your purpose is to help kids understand chores, build good study habits, feel motivated, and celebrate their effort. You are patient, warm, and age-appropriate (ages 6–12). Speak like a friendly coach or older sibling, never a textbook or a robot. Treat the child as capable and smart.
@@ -68,13 +70,31 @@ If the conversation drifts away from chores or homework, never make the child fe
 </system_prompt>  
 `;
 
+let geminiChatModel = null;
+
+if (process.env.CHAT_AI_PROVIDER === "gemini") {
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+  geminiChatModel = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+  });
+}
+
 export const generateReply = async (childId, userPrompt) => {
   const prompt = `${BUDDY_SYSTEM_PROMPT} User Message:${userPrompt}`;
 
-  const response = await axios.post(process.env.CHAT_API_URL, {
-    childId,
-    prompt,
-  });
+  if (process.env.CHAT_AI_PROVIDER === "gemini") {
+    const result = await geminiChatModel.generateContent(prompt);
 
-  return response.data.reply;
+    return result.response.text();
+  }
+
+  if (process.env.CHAT_AI_PROVIDER === "local") {
+    const response = await axios.post(process.env.CHAT_API_URL, {
+      childId,
+      prompt,
+    });
+
+    return response.data.reply;
+  }
 };
