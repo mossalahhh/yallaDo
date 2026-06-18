@@ -5,9 +5,9 @@ export const chatWithAi = async (req, res, next) => {
   const child = await Child.findOne({ userId: req.user._id });
   const childId = child._id;
 
-  const { promot } = req.body;
+  const { prompt } = req.body;
 
-  const reply = await generateReply(childId, promot);
+  const reply = await generateReply(childId, prompt);
 
   return res.status(200).json({ success: true, reply });
 };
