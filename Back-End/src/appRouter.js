@@ -6,7 +6,7 @@ import childRouter from "./modules/child/child_router.js";
 import taskRouter from "./modules/task/task_router.js";
 import rewardRouter from "./modules/reward/reward_router.js";
 import notificationsRouter from "./modules/notifications/notifications_router.js";
-import aiRouter from "./modules/notifications/ai_router.js";
+import aiRouter from "./modules/ai_router.js";
 
 export const appRouter = (app, express) => {
   if (process.env.NODE_ENV === "dev") {
