@@ -1,5 +1,5 @@
 import generateReply from "./ai_services.js";
-import Child from "../../../Db/models/child_model";
+import Child from "../../../Db/models/child_model.js";
 
 export const chatWithAi = async (req, res, next) => {
   const child = await Child.findOne({ userId: req.user._id });
