@@ -7,6 +7,7 @@ export const validationImg = {
     "image/bmp",
     "image/vnd.microsoft.icon",
     "image/jpeg",
+    "image/jpg",
     "image/png",
     "image/svg+xml",
     "image/webp",
