@@ -7,7 +7,7 @@ import taskRouter from "./modules/task/task_router.js";
 import rewardRouter from "./modules/reward/reward_router.js";
 import notificationsRouter from "./modules/notifications/notifications_router.js";
 import aiRouter from "./modules/ai/ai_router.js";
-import cors from "cors";
+// import cors from "cors";
 
 export const appRouter = (app, express) => {
   if (process.env.NODE_ENV === "dev") {
@@ -22,6 +22,7 @@ export const appRouter = (app, express) => {
   //     credentials: false,
   //   }),
   // );
+
   // undefined for postman requests
   // null for fs
   const whiteList = [
