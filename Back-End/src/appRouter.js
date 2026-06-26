@@ -14,7 +14,14 @@ export const appRouter = (app, express) => {
     app.use(morgan("common"));
   }
 
-  app.use(cors());
+  app.use(
+    cors({
+      origin: true,
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: false,
+    }),
+  );
   //undefined for postman requests
   //null for fs
   // const whiteList = [
