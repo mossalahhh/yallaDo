@@ -12,10 +12,16 @@ export const profilePic = async (req, res, next) => {
   if (!user) {
     return next(new Error("user not found", { cause: 404 }));
   }
+  console.log("==== PROFILE PIC ====");
+  console.log("file:", req.file);
+  console.log("body:", req.body);
 
   if (!req.file) {
     return next(new Error("File Image is Required", { cause: 400 }));
   }
+
+  console.log("mime:", req.file?.mimetype);
+  console.log("path:", req.file?.path);
 
   const { secure_url, public_id } = await cloudinary.uploader.upload(
     req.file.path,
@@ -23,6 +29,8 @@ export const profilePic = async (req, res, next) => {
       folder: `${process.env.FOLDER_NAME}/users/${user._id}`,
     },
   );
+
+  console.log("uploaded");
 
   user.profilePic = { url: secure_url, id: public_id };
   await user.save();
