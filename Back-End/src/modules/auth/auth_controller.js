@@ -64,7 +64,6 @@ export const register = async (req, res, next) => {
       parents: [],
     });
   }
-  //Todo if child create cart for child
   const confirmEmail = await sendEmail({
     to: email,
     subject: "Confirmation Email",
@@ -144,7 +143,6 @@ export const login = async (req, res, next) => {
   const token = jwt.sign(
     { email: user.email, id: user._id, role: user.role },
     process.env.SECRET_KEY,
-    { expiresIn: "10d" },
   );
 
   //add token to tokenDB list
