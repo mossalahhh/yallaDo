@@ -32,7 +32,7 @@ export const appRouter = (app, express) => {
     "http://localhost:61943",
     "http://localhost:3000",
     "http://localhost:50780",
-    "http://localhost:59913",
+    "http://localhost:60726",
   ];
   app.use((req, res, next) => {
     //handle requests from front-end
