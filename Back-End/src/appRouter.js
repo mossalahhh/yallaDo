@@ -21,6 +21,7 @@ export const appRouter = (app, express) => {
     "http://127.0.0.1:5500",
     "http://localhost:61943",
     "http://localhost:3000",
+    "http://localhost:50780",
   ];
   app.use((req, res, next) => {
     //handle requests from front-end
