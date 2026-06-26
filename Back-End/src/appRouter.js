@@ -15,7 +15,13 @@ export const appRouter = (app, express) => {
 
   //undefined for postman requests
   //null for fs
-  const whiteList = [undefined, null, "http://127.0.0.1:5500"];
+  const whiteList = [
+    undefined,
+    null,
+    "http://127.0.0.1:5500",
+    "http://localhost:61943",
+    "http://localhost:3000",
+  ];
   app.use((req, res, next) => {
     //handle requests from front-end
     if (!whiteList.includes(req.header("origin"))) {
