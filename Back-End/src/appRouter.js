@@ -14,37 +14,37 @@ export const appRouter = (app, express) => {
     app.use(morgan("common"));
   }
 
-  app.use(
-    cors({
-      origin: true,
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-      credentials: false,
-    }),
-  );
-  //undefined for postman requests
-  //null for fs
-  // const whiteList = [
-  //   undefined,
-  //   null,
-  //   "http://127.0.0.1:5500",
-  //   "http://localhost:61943",
-  //   "http://localhost:3000",
-  //   "http://localhost:50780",
-  //   "http://localhost:59602",
-  // ];
-  // app.use((req, res, next) => {
-  //   //handle requests from front-end
-  //   if (!whiteList.includes(req.header("origin"))) {
-  //     return next(new Error("Blocked By CORS"));
-  //   }
-  //   res.setHeader("Access-Control-Allow-Origin", "*");
-  //   res.setHeader("Access-Control-Allow-Methods", "*");
-  //   res.setHeader("Access-Control-Allow-Headers", "*");
-  //   //to allow request for localHost
-  //   res.setHeader("Access-Control-Allow-Private-Network", true);
-  //   return next();
-  // });
+  // app.use(
+  //   cors({
+  //     origin: true,
+  //     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  //     allowedHeaders: ["Content-Type", "Authorization"],
+  //     credentials: false,
+  //   }),
+  // );
+  // undefined for postman requests
+  // null for fs
+  const whiteList = [
+    undefined,
+    null,
+    "http://127.0.0.1:5500",
+    "http://localhost:61943",
+    "http://localhost:3000",
+    "http://localhost:50780",
+    "http://localhost:57503",
+  ];
+  app.use((req, res, next) => {
+    //handle requests from front-end
+    if (!whiteList.includes(req.header("origin"))) {
+      return next(new Error("Blocked By CORS"));
+    }
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "*");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+    //to allow request for localHost
+    res.setHeader("Access-Control-Allow-Private-Network", true);
+    return next();
+  });
 
   //parse express data
   app.use(express.json());
