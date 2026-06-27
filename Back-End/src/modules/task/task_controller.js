@@ -6,6 +6,10 @@ import History from "../../../Db/models/history_mode.js";
 import Notification from "../../../Db/models/notification_model.js";
 import User from "../../../Db/models/user_model.js";
 import mongoose from "mongoose";
+import crypto from "crypto";
+import fs from "fs";
+import { verifyTaskImage } from "../ai/ai_services.js";
+import { generateImageHash } from "../../utils/generateImageHash.js";
 
 export const createTask = async (req, res, next) => {
   //data
@@ -261,80 +265,143 @@ export const claimTask = async (req, res, next) => {
 };
 
 export const submitTask = async (req, res, next) => {
-  //get data
   const { taskId } = req.params;
-  // const description = req.body?.description;
 
-  const task = await Task.findById({ _id: taskId });
-
-  const child = await Child.findOne({ userId: req.user._id });
-
-  if (!child) {
-    return next(new Error("child profile not found ", { cause: 404 }));
-  }
-
-  // console.log({
-  //   user: child._id.toString(),
-  //   assignedTo: task.assignedTo?.toString(),
-  //   claimedBy: task.claimedBy?.toString(),
-  //   type: task.type,
-  // });
+  const task = await Task.findById(taskId);
 
   if (!task) {
-    return next(new Error("Task not found", { cause: 404 }));
+    return next(
+      new Error("Task not found", {
+        cause: 404,
+      }),
+    );
   }
-  //check ownership
+
+  const child = await Child.findOne({
+    userId: req.user._id,
+  });
+
+  if (!child) {
+    return next(
+      new Error("Child profile not found", {
+        cause: 404,
+      }),
+    );
+  }
+
   const isOwner =
     child._id.toString() === task.claimedBy?.toString() ||
     child._id.toString() === task.assignedTo?.toString();
 
   if (!isOwner) {
-    return next(new Error("Not authorized", { cause: 403 }));
+    return next(
+      new Error("Not authorized", {
+        cause: 403,
+      }),
+    );
   }
 
-  //check status
   if (task.status !== "pending" && task.status !== "claimed") {
-    return next(new Error("Task cannot be submitted", { cause: 400 }));
+    return next(
+      new Error("Task cannot be submitted", {
+        cause: 400,
+      }),
+    );
   }
 
-  //requirments
-  // if (
-  //   (task.requirements.submissionType === "text" ||
-  //     task.requirements.submissionType === "both") &&
-  //   !description
-  // ) {
-  //   return next(new Error("Description is required", { cause: 400 }));
-  // }
-
-  let images = [];
   if (task.requirements.submissionType === "image") {
     if (!req.files || req.files.length < task.requirements.minImages) {
-      return next(new Error("Not enough images", { cause: 400 }));
+      return next(
+        new Error("Not enough images", {
+          cause: 400,
+        }),
+      );
+    }
+  }
+
+  let images = [];
+
+  let imageHash = null;
+
+  if (req.files?.length) {
+    imageHash = generateImageHash(req.files[0].path);
+
+    const duplicateTask = await Task.findOne({
+      _id: { $ne: task._id },
+      "submission.imageHash": imageHash,
+    });
+
+    if (duplicateTask) {
+      return next(
+        new Error("This image has already been used in another task", {
+          cause: 400,
+        }),
+      );
     }
 
     for (const file of req.files) {
       const { secure_url, public_id } = await cloudinary.uploader.upload(
         file.path,
-        { folder: `${process.env.FOLDER_NAME}/tasks/submissions/${task._id}` },
+        {
+          folder: `${process.env.FOLDER_NAME}/tasks/submissions/${task._id}`,
+        },
       );
-      images.push({ url: secure_url, id: public_id });
+
+      images.push({
+        url: secure_url,
+        id: public_id,
+      });
+
+      try {
+        fs.unlinkSync(file.path);
+      } catch (err) {
+        console.error("Failed deleting temp file", err);
+      }
     }
   }
 
   task.submission = {
-    // description,
     images,
+    imageHash,
     submittedAt: new Date(),
+
+    aiReview: {
+      status: "pending",
+    },
   };
 
   task.status = "submitted";
 
   await task.save();
 
-  const parent = await Parent.findOne({ _id: task.createdBy });
-  if (!parent) {
-    return next(new Error("Parent not found", { cause: 404 }));
+  if (images.length > 0) {
+    try {
+      const aiResult = await verifyTaskImage(task);
+
+      task.submission.aiReview = {
+        status: aiResult.is_clean ? "approved" : "rejected",
+
+        reviewedAt: new Date(),
+
+        result: aiResult,
+      };
+
+      await task.save();
+    } catch (error) {
+      console.error("AI Review Failed:", error);
+    }
   }
+
+  const parent = await Parent.findById(task.createdBy);
+
+  if (!parent) {
+    return next(
+      new Error("Parent not found", {
+        cause: 404,
+      }),
+    );
+  }
+
   const childUser = await User.findById(child.userId).select("name");
 
   await Notification.create({
@@ -345,6 +412,7 @@ export const submitTask = async (req, res, next) => {
     senderModel: "Child",
 
     title: "Task Submitted",
+
     message: `${task.title} was submitted by ${childUser.name}`,
 
     type: "task_submitted",
@@ -353,9 +421,11 @@ export const submitTask = async (req, res, next) => {
     relatedModel: "Task",
   });
 
-  return res
-    .status(200)
-    .json({ success: true, message: "Task submitted successfully", task });
+  return res.status(200).json({
+    success: true,
+    message: "Task submitted successfully",
+    task,
+  });
 };
 
 export const approveTask = async (req, res, next) => {

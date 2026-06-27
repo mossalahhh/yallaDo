@@ -95,16 +95,31 @@ const taskSchema = new Schema(
           id: String,
         },
       ],
+
+      imageHash: String,
       submittedAt: Date,
+
+      aiReview: {
+        status: {
+          type: String,
+          enum: ["pending", "approved", "rejected"],
+          default: "pending",
+        },
+
+        result: {
+          type: Schema.Types.Mixed,
+        },
+        reviewedAt: Date,
+      },
+      isDeleted: {
+        type: Boolean,
+        default: false,
+      },
+      dueDate: Date,
+      completedAt: Date,
+      approvedAt: Date,
+      rejectionReason: String,
     },
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
-    dueDate: Date,
-    completedAt: Date,
-    approvedAt: Date,
-    rejectionReason: String,
   },
   { timestamps: true, toJSON: true, toObject: true },
 );
