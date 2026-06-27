@@ -4,7 +4,7 @@ import joi from "joi";
 export const registerSchema = joi
   .object({
     name: joi.string().min(3).max(15),
-    userName: joi.string().alphanum().min(3).max(15),
+    userName: joi.string().alphanum().min(3).max(15).lowercase(),
     email: joi.string().email(),
     password: joi.string(),
     confirmPassword: joi.string().valid(joi.ref("password")),
