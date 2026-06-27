@@ -111,15 +111,15 @@ const taskSchema = new Schema(
         },
         reviewedAt: Date,
       },
-      isDeleted: {
-        type: Boolean,
-        default: false,
-      },
-      dueDate: Date,
       completedAt: Date,
       approvedAt: Date,
       rejectionReason: String,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    dueDate: Date,
   },
   { timestamps: true, toJSON: true, toObject: true },
 );
