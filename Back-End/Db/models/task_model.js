@@ -140,6 +140,9 @@ taskSchema.set("toJSON", {
     ret.taskId = ret._id;
     delete ret._id;
     delete ret.__v;
+    delete ret.isDeleted;
+    delete ret.imageHash;
+    delete ret.updatedAt;
 
     // remove empty claimedBy
     if (!ret.claimedBy) delete ret.claimedBy;
@@ -163,6 +166,11 @@ taskSchema.set("toJSON", {
 
         reason: ret.submission.aiReview.result?.reasoning || null,
       };
+    }
+
+    // remove empty submission
+    if (!ret.submission.images?.length) {
+      delete ret.submission.images;
     }
 
     return ret;
