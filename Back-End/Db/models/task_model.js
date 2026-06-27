@@ -155,6 +155,16 @@ taskSchema.set("toJSON", {
       delete ret.image;
     }
 
+    if (ret.submission?.aiReview) {
+      ret.submission.aiReview = {
+        status: ret.submission.aiReview.status,
+
+        reviewedAt: ret.submission.aiReview.reviewedAt,
+
+        reason: ret.submission.aiReview.result?.reasoning || null,
+      };
+    }
+
     return ret;
   },
 });
