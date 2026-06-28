@@ -167,12 +167,6 @@ taskSchema.set("toJSON", {
         reason: ret.submission.aiReview.result?.reasoning || null,
       };
     }
-
-    // remove empty submission
-    if (!ret.submission.images?.length) {
-      delete ret.submission.images;
-    }
-
     return ret;
   },
 });
