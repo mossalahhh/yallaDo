@@ -23,8 +23,8 @@ export const appRouter = (app, express) => {
   //   }),
   // );
 
-  undefined for postman requests
-  null for fs
+  // undefined for postman requests
+  // null for fs
   const whiteList = [
     undefined,
     null,
