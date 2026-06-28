@@ -13,13 +13,12 @@ export const createTaskSchema = Joi.object({
   points: Joi.number().min(1).required(),
   priority: Joi.string().valid("low", "medium", "high").default("medium"),
   category: Joi.string().required(),
-  minImages: Joi.number()
-    .min(0)
-    .when("submissionType", {
-      is: "text",
-      then: Joi.valid(0),
-      otherwise: Joi.number().min(1).required(),
-    }),
+  submissionType: Joi.string().valid("image").optional(),
+  minImages: Joi.when("submissionType", {
+    is: "image",
+    then: Joi.number().integer().min(1).required(),
+    otherwise: Joi.number().integer().min(0).default(0),
+  }),
   dueDate: Joi.date().iso().optional(),
 });
 
