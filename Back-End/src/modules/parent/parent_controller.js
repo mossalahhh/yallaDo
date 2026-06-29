@@ -233,7 +233,7 @@ export const bounsPoints = async (req, res, next) => {
     );
     //return res
     await session.commitTransaction();
-
+    console.log("Before response");
     return res
       .status(201)
       .json({ success: true, message: `points ${type}ed seccessfully` });
