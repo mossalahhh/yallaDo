@@ -142,6 +142,9 @@ export const bounsPoints = async (req, res, next) => {
   const { points, type, reason } = req.body;
   const { childId } = req.params;
 
+  console.log(req.params);
+  console.log(req.body);
+  console.log(req.user);
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
