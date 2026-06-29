@@ -34,9 +34,9 @@ export const createTask = async (req, res, next) => {
     return next(new Error("assignedTo is required for personal tasks"));
   }
 
-  if (submissionType === "text" && minImages > 0) {
-    return next(new Error("minImages must be 0 when submissionType is text"));
-  }
+  // if (submissionType === "text" && minImages > 0) {
+  //   return next(new Error("minImages must be 0 when submissionType is text"));
+  // }
 
   let due = undefined;
 
