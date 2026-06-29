@@ -153,6 +153,7 @@ export const bounsPoints = async (req, res, next) => {
       session,
     );
     if (!parent) {
+      await session.abortTransaction();
       return next(new Error("Parent profile not found", { cause: 404 }));
     }
 
@@ -163,16 +164,19 @@ export const bounsPoints = async (req, res, next) => {
     }).session(session);
 
     if (!child) {
+      await session.abortTransaction();
       return next(new Error("Child not found or not linked", { cause: 404 }));
     }
 
     // Make sure the points are not negative
     if (points <= 0) {
+      await session.abortTransaction();
       return next(new Error("Points Must be Greater than 0", { cause: 400 }));
     }
 
     //make sure from number of points
     if (type === "remove" && child.totalPoints < points) {
+      await session.abortTransaction();
       return next(new Error("Insufficient points", { cause: 400 }));
     }
     //make sure from daily limits
@@ -198,6 +202,7 @@ export const bounsPoints = async (req, res, next) => {
     const usedPoints = totalDay[0]?.total || 0;
 
     if (usedPoints + points > Number(process.env.DAILY_LIMIT)) {
+      await session.abortTransaction();
       return next(new Error("Daily manual points limit exceeded"));
     }
 
