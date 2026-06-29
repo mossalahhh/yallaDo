@@ -82,7 +82,7 @@ export const createTask = async (req, res, next) => {
     priority,
     category,
     requirements: {
-      submissionType: submissionType ?? "text",
+      submissionType: submissionType,
       minImages: minImages ?? 0,
     },
     dueDate: due || undefined,
