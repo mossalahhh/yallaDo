@@ -214,7 +214,7 @@ export const bounsPoints = async (req, res, next) => {
       {
         $inc: { totalPoints: updatedValue },
       },
-      { new: true, session },
+      { session },
     );
 
     //create history
