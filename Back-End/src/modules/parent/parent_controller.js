@@ -233,6 +233,7 @@ export const bounsPoints = async (req, res, next) => {
       .status(201)
       .json({ success: true, message: `points ${type}ed seccessfully` });
   } catch (error) {
+    console.error(error);
     await session.abortTransaction();
     next(error);
   } finally {
