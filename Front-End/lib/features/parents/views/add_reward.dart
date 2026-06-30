@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:yallado/core/helper/app_nav.dart';
 import 'package:yallado/core/helper/app_popup.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/tab_scope.dart';
 import 'package:yallado/features/parents/views/rewards.dart';
 import 'package:yallado/features/parents/views/widgets/widget.dart';
 import 'package:yallado/features/rewards/cubit/rewards_cubit/rewards_cubit.dart';
@@ -100,7 +102,15 @@ class _AddRewardBodyState extends State<_AddRewardBody> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  const SizedBox(height: 20),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      onPressed: () => AppNav.back(context,
+                          fallback: () => TabScope.of(context)?.goHome()),
+                      icon: const Icon(Icons.arrow_back_ios,
+                          color: AppColor.secondary),
+                    ),
+                  ),
                   Image.asset('images/hero.png', height: 60, width: 60),
                   const Text("Add Reward",
                       style: TextStyle(

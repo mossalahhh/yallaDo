@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yallado/core/helper/app_nav.dart';
 import 'package:yallado/core/helper/app_popup.dart';
 import 'package:yallado/features/auth/cubit/auth_cubit/auth_cubit.dart';
 import 'package:yallado/features/auth/cubit/auth_cubit/auth_state.dart';
@@ -120,7 +121,16 @@ class _VerifyEmailState extends State<VerifyEmail> {
                       children: [
                         IconButton(
                           color: const Color(0xFF4C2D19),
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => AppNav.back(
+                            context,
+                            fallback: () => Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ParentLoginScreen(),
+                              ),
+                              (route) => false,
+                            ),
+                          ),
                           icon: const Icon(Icons.arrow_back_ios_new_outlined),
                         ),
                       ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/tab_scope.dart';
 import 'package:yallado/features/notifications/data/notification_service.dart';
 import 'package:yallado/features/parents/views/add_reward.dart';
 import 'package:yallado/features/parents/views/notifications.dart';
@@ -56,9 +57,12 @@ class _ParentBottomNavigationBarState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: currentIndex,
-        children: pages,
+      body: TabScope(
+        goHome: () => setState(() => currentIndex = 2),
+        child: IndexedStack(
+          index: currentIndex,
+          children: pages,
+        ),
       ),
 
       bottomNavigationBar: Container(

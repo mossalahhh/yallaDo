@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/app_error_retry.dart';
 import 'package:yallado/core/widgets/app_network_image.dart';
 import 'package:yallado/features/child/cubit/leaderboard_cubit/leaderboard_cubit.dart';
 import 'package:yallado/features/child/data/models/leader_model.dart';
@@ -55,10 +56,11 @@ class LeaderBoardScreen extends StatelessWidget {
                         )
                       else if (state is LeaderboardError)
                         Expanded(
-                          child: Center(
-                              child: Text(state.message,
-                                  style: const TextStyle(
-                                      color: AppColor.secondary))),
+                          child: AppErrorRetry(
+                            message: state.message,
+                            onRetry: () =>
+                                context.read<LeaderboardCubit>().load(),
+                          ),
                         )
                       else if (state is LeaderboardLoaded)
                         Expanded(child: _content(state))

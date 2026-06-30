@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yallado/core/helper/app_popup.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/app_error_retry.dart';
 import 'package:yallado/features/child/cubit/avatar_cubit/avatar_cubit.dart';
 import 'package:yallado/features/child/cubit/avatar_cubit/avatar_state.dart';
 import 'package:yallado/features/child/data/models/avatar_model.dart';
@@ -97,13 +98,15 @@ class _ChildAvatarBodyState extends State<_ChildAvatarBody> {
             final avatars = cubit.avatars;
 
             if (avatars.isEmpty) {
-              return Center(
-                child: state is AvatarError
-                    ? Text(state.message,
-                        style: const TextStyle(color: AppColor.secondary))
-                    : const CircularProgressIndicator(
-                        color: AppColor.secondary),
-              );
+              return state is AvatarError
+                  ? AppErrorRetry(
+                      message: state.message,
+                      onRetry: () => context.read<AvatarCubit>().load(),
+                    )
+                  : const Center(
+                      child: CircularProgressIndicator(
+                          color: AppColor.secondary),
+                    );
             }
 
             final current = avatars[currentIndex.clamp(0, avatars.length - 1)];

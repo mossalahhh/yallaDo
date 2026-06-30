@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/app_error_retry.dart';
+import 'package:yallado/core/widgets/app_refresh.dart';
 import 'package:yallado/features/parents/cubit/analytics_cubit/analytics_cubit.dart';
 
 /// Parent behaviour analytics — shows ALL of this parent's children at once
@@ -33,7 +35,10 @@ class _TrackBehaviorBody extends StatelessWidget {
         child: BlocBuilder<AnalyticsCubit, AnalyticsState>(
           builder: (context, state) {
             final cubit = context.read<AnalyticsCubit>();
-            return SingleChildScrollView(
+            return AppRefresh(
+              onRefresh: () => context.read<AnalyticsCubit>().loadAll(),
+              child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,10 +67,11 @@ class _TrackBehaviorBody extends StatelessWidget {
                   else if (state is AnalyticsError)
                     Padding(
                       padding: const EdgeInsets.all(40),
-                      child: Center(
-                          child: Text(state.message,
-                              style:
-                                  const TextStyle(color: AppColor.secondary))),
+                      child: AppErrorRetry(
+                        message: state.message,
+                        onRetry: () =>
+                            context.read<AnalyticsCubit>().loadAll(),
+                      ),
                     )
                   else ...[
                     const SizedBox(height: 8),
@@ -96,7 +102,7 @@ class _TrackBehaviorBody extends StatelessWidget {
                   ],
                 ],
               ),
-            );
+            ));
           },
         ),
       ),

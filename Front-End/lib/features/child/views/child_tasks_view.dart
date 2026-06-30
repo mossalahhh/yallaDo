@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yallado/core/helper/app_nav.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/app_error_retry.dart';
+import 'package:yallado/core/widgets/tab_scope.dart';
 import 'package:yallado/features/child/views/task_details.dart';
 import 'package:yallado/features/child/views/widgets/bubble_message.dart';
 import 'package:yallado/features/child/views/widgets/task_card.dart';
@@ -41,7 +44,8 @@ class ChildTasksView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => AppNav.back(context,
+                            fallback: () => TabScope.of(context)?.goHome()),
                         icon: const Icon(Icons.arrow_back_ios,
                             color: AppColor.secondary),
                       ),
@@ -84,10 +88,11 @@ class ChildTasksView extends StatelessWidget {
                                 color: AppColor.secondary));
                       }
                       if (state is TasksError) {
-                        return Center(
-                            child: Text(state.message,
-                                style: const TextStyle(
-                                    color: AppColor.secondary)));
+                        return AppErrorRetry(
+                          message: state.message,
+                          onRetry: () =>
+                              context.read<TasksCubit>().loadTasks(),
+                        );
                       }
                       final tasks = context.read<TasksCubit>().tasks;
                       if (tasks.isEmpty) {

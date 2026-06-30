@@ -105,7 +105,7 @@ class _SignupScreenState extends State<SignupScreen> {
               message: state.message,
               state: PopUpState.success,
             );
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => VerifyEmail(

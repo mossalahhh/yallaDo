@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/tab_scope.dart';
 import 'package:yallado/features/child/views/child_home_view.dart';
 import 'package:yallado/features/child/views/child_notification_view.dart';
 import 'package:yallado/features/child/views/child_tasks_view.dart';
@@ -72,9 +73,12 @@ class _ChildBottomNavigationBarState extends State<ChildBottomNavigationBar> {
     return Scaffold(
       backgroundColor: Color(0xFFF9F7F0),
       extendBody: true,
-      body: IndexedStack(
-        index: currentIndex,
-        children: pages,
+      body: TabScope(
+        goHome: () => setState(() => currentIndex = 0),
+        child: IndexedStack(
+          index: currentIndex,
+          children: pages,
+        ),
       ),
 
       bottomNavigationBar: Container(

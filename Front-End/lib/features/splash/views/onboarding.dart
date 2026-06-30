@@ -51,13 +51,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   children: [
                     OnboardPage(
                       image: "images/preview1.png",
-                      title: "Make every task a fun\nadventure with Ticky! 🎉",
+                      title: "Make every task a fun\nadventure with YallaDo! 🎉",
                       description:
                           "\"Together, make every task a fun step to\nlearn, grow, and shine!\" ✨",
                     ),
                     OnboardPage(
                       image: "images/preview2.png",
-                      title: "Ticky makes progress fun\nand rewarding! 🏆",
+                      title: "YallaDo makes progress fun\nand rewarding! 🏆",
                       description:
                           "Kids earn stars ✨, unlock rewards 🎁, and build happy habits together!",
                     ),
