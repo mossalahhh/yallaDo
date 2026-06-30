@@ -24,7 +24,7 @@ export const getNotifications = async (req, res, next) => {
     filter.receiver = child._id;
   }
 
-  const notifications = await Notifications.find(filter)
+  const notifications = await Notification.find(filter)
     .customFilter(rest)
     .customSelect(fields)
     .paginate(page)
