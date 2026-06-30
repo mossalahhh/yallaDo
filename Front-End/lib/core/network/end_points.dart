@@ -4,8 +4,14 @@
 /// and the custom authorization scheme live here so they can be changed in one
 /// place.
 class EndPoints {
-  
-  static const String baseURL = 'https://yalla-do.vercel.app/';
+  /// Deployed server by default — so the app works on any phone/emulator over
+  /// the internet with no host changes. Override at run/build time without
+  /// editing code, e.g. to hit a local backend from an emulator:
+  ///   flutter run --dart-define=API_BASE=http://10.0.2.2:3000/
+  static const String baseURL = String.fromEnvironment(
+    'API_BASE',
+    defaultValue: 'https://yalla-do.vercel.app/',
+  );
 
   static const String tokenPrefix = 'yallaDo_grad_';
 
