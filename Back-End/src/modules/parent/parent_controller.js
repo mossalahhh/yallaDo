@@ -106,21 +106,23 @@ export const unLinkChild = async (req, res, next) => {
     const parentName = user.name;
     //create Notification
     await Notification.create(
-      {
-        receiver: child._id,
-        receiverModel: "Child",
+      [
+        {
+          receiver: child._id,
+          receiverModel: "Child",
 
-        sender: parent._id,
-        senderModel: "Parent",
+          sender: parent._id,
+          senderModel: "Parent",
 
-        title: "Family Unlinked",
-        message: `Your connection with ${parentName}'s family account has been removed.`,
+          title: "Family Unlinked",
+          message: `Your connection with ${parentName}'s family account has been removed.`,
 
-        type: "parent_unlink",
+          type: "parent_unlink",
 
-        relatedId: child._id,
-        relatedModel: "Child",
-      },
+          relatedId: child._id,
+          relatedModel: "Child",
+        },
+      ],
       { session },
     );
 
