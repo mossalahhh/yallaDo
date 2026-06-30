@@ -279,7 +279,7 @@ export const detailsChild = async (req, res, next) => {
         _id: null,
         total: { $sum: 1 },
         approved: { $sum: { $cond: [{ $eq: ["$status", "approved"] }, 1, 0] } },
-        rejected: { $sum: { $cond: [{ $eq: ["$status", "rejeted"] }, 1, 0] } },
+        rejected: { $sum: { $cond: [{ $eq: ["$status", "rejected"] }, 1, 0] } },
         pending: {
           $sum: {
             $cond: [
