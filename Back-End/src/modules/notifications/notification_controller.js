@@ -257,11 +257,12 @@ export const countNot = async (req, res, next) => {
 
   const receiverId = user.role === "parent" ? parent._id : child._id;
 
-  const result = await Notification.find({
+  // Count only UNREAD notifications so the badge drops when items are read,
+  // not just when they're deleted.
+  const count = await Notification.countDocuments({
     receiver: receiverId,
+    isRead: false,
   });
-
-  const count = result.length;
 
   return res.status(200).json({
     success: true,
