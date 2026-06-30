@@ -24,13 +24,13 @@ export const getNotifications = async (req, res, next) => {
     filter.receiver = child._id;
   }
 
-  const rewards = await Notifications.find(filter)
+  const notifications = await Notifications.find(filter)
     .customFilter(rest)
     .customSelect(fields)
     .paginate(page)
     .sort({ createdAt: -1 });
 
-  return res.status(200).json({ success: true, rewards });
+  return res.status(200).json({ success: true, notifications });
 };
 
 export const readNot = async (req, res, next) => {
