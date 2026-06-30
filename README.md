@@ -28,7 +28,7 @@ designed to work together as a scalable and maintainable application.
 
 ## 🚧 Project Status
 
-- Backend: In progress 🚀
+- Backend: Completed 🚀
 - Frontend: In progress 🚀
 - Deployment: Planned (Vercel / other cloud services)
 
