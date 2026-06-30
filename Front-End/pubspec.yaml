@@ -54,6 +54,19 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
+  # Generates the Android launcher icons from images/app_icon*.png.
+  # The square icons are composed from the YallaDo mascot logo by tool/make_icon.dart.
+  flutter_launcher_icons: ^0.14.4
+  image: ^4.3.0
+
+# App launcher icon configuration (run: dart run flutter_launcher_icons)
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "images/app_icon.png"
+  adaptive_icon_background: "#F7F9FA"
+  adaptive_icon_foreground: "images/app_icon_fg.png"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
