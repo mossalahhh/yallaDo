@@ -111,9 +111,14 @@ class ParentNotificationsView extends StatelessWidget {
   Widget _empty(BuildContext context, String message) {
     return ListView(
       // ListView so RefreshIndicator/scroll works and the message centers
+      physics: const AlwaysScrollableScrollPhysics(),
       children: [
-        const SizedBox(height: 120),
-        Image.asset('images/nonotification.png', width: 180),
+        const SizedBox(height: 140),
+        Icon(
+          Icons.notifications_none_rounded,
+          size: 96,
+          color: AppColor.secondary.withValues(alpha: 0.35),
+        ),
         const SizedBox(height: 24),
         Center(
           child: Text(message,

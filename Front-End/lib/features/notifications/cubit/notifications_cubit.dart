@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yallado/features/notifications/data/models/notification_model.dart';
 import 'package:yallado/features/notifications/data/notification_service.dart';
+import 'package:yallado/features/notifications/notification_badge.dart';
 
 abstract class NotificationsState {}
 
@@ -42,6 +43,9 @@ class NotificationsCubit extends Cubit<NotificationsState> {
           .map((e) =>
               NotificationModel.fromJson((e as Map).cast<String, dynamic>()))
           .toList();
+      // Keep the nav badge in sync with what's actually unread here.
+      NotificationBadge.setUnread(
+          notifications.where((n) => !n.isRead).length);
       emit(NotificationsLoaded(notifications));
     } else {
       emit(NotificationsError(
