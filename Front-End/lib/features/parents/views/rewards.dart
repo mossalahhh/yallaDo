@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yallado/core/helper/app_popup.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/app_refresh.dart';
 import 'package:yallado/features/child/views/widgets/animation.dart';
 import 'package:yallado/features/parents/views/widgets/parent_reward_card.dart';
 import 'package:yallado/features/rewards/cubit/rewards_cubit/rewards_cubit.dart';
@@ -153,9 +154,12 @@ class ParentRewards extends StatelessWidget {
           },
           builder: (context, state) {
             final rewards = context.read<RewardsCubit>().rewards;
-            return SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Column(
+            return AppRefresh(
+              onRefresh: () => context.read<RewardsCubit>().loadRewards(),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Column(
                 children: [
                   const SizedBox(height: 30),
                   Row(
@@ -225,6 +229,7 @@ class ParentRewards extends StatelessWidget {
                       ),
                     ),
                 ],
+              ),
               ),
             );
           },

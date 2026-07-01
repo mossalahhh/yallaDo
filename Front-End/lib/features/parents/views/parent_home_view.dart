@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/app_error_retry.dart';
 import 'package:yallado/features/parents/cubit/analytics_cubit/analytics_cubit.dart';
 import 'package:yallado/features/parents/cubit/children_cubit/children_cubit.dart';
 import 'package:yallado/features/parents/cubit/children_cubit/children_state.dart';
@@ -262,9 +263,9 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                 child: CircularProgressIndicator(color: AppColor.secondary));
           }
           if (state is ChildrenError) {
-            return Center(
-              child: Text(state.message,
-                  style: const TextStyle(color: AppColor.secondary)),
+            return AppErrorRetry(
+              message: state.message,
+              onRetry: () => context.read<ChildrenCubit>().loadChildren(),
             );
           }
           return const Center(

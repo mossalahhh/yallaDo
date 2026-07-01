@@ -8,6 +8,11 @@ class NotificationModel {
   final bool isRead;
   final String createdAt;
 
+  /// The entity this notification points at, so tapping can open it.
+  /// [relatedModel] is "Task", "Reward" or "Child"; [relatedId] is its id.
+  final String relatedId;
+  final String relatedModel;
+
   const NotificationModel({
     required this.id,
     required this.title,
@@ -15,6 +20,8 @@ class NotificationModel {
     required this.type,
     required this.isRead,
     required this.createdAt,
+    this.relatedId = '',
+    this.relatedModel = '',
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +33,8 @@ class NotificationModel {
       type: (json['type'] ?? '').toString(),
       isRead: json['isRead'] == true,
       createdAt: (json['createdAt'] ?? '').toString(),
+      relatedId: (json['relatedId'] ?? '').toString(),
+      relatedModel: (json['relatedModel'] ?? '').toString(),
     );
   }
 }

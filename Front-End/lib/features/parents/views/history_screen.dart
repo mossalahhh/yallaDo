@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/app_error_retry.dart';
 import 'package:yallado/features/parents/cubit/child_history_cubit/child_history_cubit.dart';
 import 'package:yallado/features/parents/cubit/child_history_cubit/child_history_state.dart';
 import 'package:yallado/features/parents/cubit/children_cubit/children_cubit.dart';
@@ -32,6 +33,7 @@ class _HistoryBody extends StatefulWidget {
 class _HistoryBodyState extends State<_HistoryBody> {
   int? selectedChildIndex;
   String selectedChildName = '';
+  String? selectedChildId;
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +97,7 @@ class _HistoryBodyState extends State<_HistoryBody> {
                             setState(() {
                               selectedChildIndex = index;
                               selectedChildName = children[index].name;
+                              selectedChildId = children[index].childId;
                             });
                             context
                                 .read<ChildHistoryCubit>()
@@ -122,10 +125,17 @@ class _HistoryBodyState extends State<_HistoryBody> {
                                     color: AppColor.secondary));
                           }
                           if (state is ChildHistoryError) {
-                            return Center(
-                                child: Text(state.message,
-                                    style: const TextStyle(
-                                        color: AppColor.secondary)));
+                            return AppErrorRetry(
+                              message: state.message,
+                              onRetry: () {
+                                final id = selectedChildId;
+                                if (id != null) {
+                                  context
+                                      .read<ChildHistoryCubit>()
+                                      .loadHistory(id);
+                                }
+                              },
+                            );
                           }
                           if (state is ChildHistoryLoaded) {
                             if (state.entries.isEmpty) {
@@ -134,7 +144,18 @@ class _HistoryBodyState extends State<_HistoryBody> {
                                       style: TextStyle(
                                           color: Colors.grey, fontSize: 16)));
                             }
-                            return ListView.separated(
+                            return RefreshIndicator(
+                              color: AppColor.secondary,
+                              onRefresh: () {
+                                final id = selectedChildId;
+                                return id != null
+                                    ? context
+                                        .read<ChildHistoryCubit>()
+                                        .loadHistory(id)
+                                    : Future.value();
+                              },
+                              child: ListView.separated(
+                              physics: const AlwaysScrollableScrollPhysics(),
                               itemCount: state.entries.length,
                               separatorBuilder: (_, __) =>
                                   const SizedBox(height: 12),
@@ -148,6 +169,7 @@ class _HistoryBodyState extends State<_HistoryBody> {
                                   reason: item.reason,
                                 );
                               },
+                            ),
                             );
                           }
                           return const SizedBox.shrink();

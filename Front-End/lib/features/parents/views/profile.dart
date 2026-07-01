@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:yallado/core/helper/app_nav.dart';
 import 'package:yallado/core/helper/app_popup.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/app_error_retry.dart';
 import 'package:yallado/core/widgets/app_network_image.dart';
+import 'package:yallado/core/widgets/app_refresh.dart';
+import 'package:yallado/core/widgets/tab_scope.dart';
 import 'package:yallado/features/parents/views/history_screen.dart';
 import 'package:yallado/features/user/cubit/profile_cubit/profile_cubit.dart';
 import 'package:yallado/features/user/cubit/profile_cubit/profile_state.dart';
@@ -137,25 +141,33 @@ class _ProfileBody extends StatelessWidget {
                 state is ProfileLoading || state is ProfileActionLoading;
 
             if (profile == null) {
-              return Center(
-                child: state is ProfileError
-                    ? Text(state.message,
-                        style: const TextStyle(color: AppColor.secondary))
-                    : const CircularProgressIndicator(
-                        color: AppColor.secondary),
-              );
+              return state is ProfileError
+                  ? AppErrorRetry(
+                      message: state.message,
+                      onRetry: () =>
+                          context.read<ProfileCubit>().loadProfile(),
+                    )
+                  : const Center(
+                      child: CircularProgressIndicator(
+                          color: AppColor.secondary),
+                    );
             }
 
             return Stack(
               children: [
-                Padding(
+                AppRefresh(
+                  onRefresh: () => context.read<ProfileCubit>().loadProfile(),
+                  child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       Row(
                         children: [
                           IconButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => AppNav.back(context,
+                                fallback: () =>
+                                    TabScope.of(context)?.goHome()),
                             icon: const Icon(Icons.arrow_back_ios,
                                 color: AppColor.secondary),
                           ),
@@ -231,7 +243,7 @@ class _ProfileBody extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
+                )),
                 if (busy)
                   Container(
                     color: Colors.black.withValues(alpha: 0.05),

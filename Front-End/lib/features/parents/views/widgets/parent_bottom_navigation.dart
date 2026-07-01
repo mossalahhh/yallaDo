@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yallado/core/utils/app_colors.dart';
-import 'package:yallado/features/notifications/data/notification_service.dart';
+import 'package:yallado/core/widgets/tab_scope.dart';
+import 'package:yallado/features/notifications/notification_badge.dart';
 import 'package:yallado/features/parents/views/add_reward.dart';
 import 'package:yallado/features/parents/views/notifications.dart';
 import 'package:yallado/features/parents/views/parent_home_view.dart';
@@ -17,19 +18,12 @@ class ParentBottomNavigationBar extends StatefulWidget {
 class _ParentBottomNavigationBarState
     extends State<ParentBottomNavigationBar> {
   int currentIndex = 2;
-  int _notifCount = 0;
   static const int _notifIndex = 3;
 
   @override
   void initState() {
     super.initState();
-    _loadNotifCount();
-  }
-
-  Future<void> _loadNotifCount() async {
-    final res = await NotificationService().count();
-    final c = (res.status && res.data is Map) ? res.data['count'] : null;
-    if (mounted && c is num) setState(() => _notifCount = c.toInt());
+    NotificationBadge.refresh();
   }
 
   final List<Widget> pages = const [
@@ -56,9 +50,12 @@ class _ParentBottomNavigationBarState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: currentIndex,
-        children: pages,
+      body: TabScope(
+        goHome: () => setState(() => currentIndex = 2),
+        child: IndexedStack(
+          index: currentIndex,
+          children: pages,
+        ),
       ),
 
       bottomNavigationBar: Container(
@@ -92,14 +89,18 @@ class _ParentBottomNavigationBarState
                   currentIndex = index;
                 });
                 // Refresh the badge whenever tabs change (e.g. after reading).
-                _loadNotifCount();
+                NotificationBadge.refresh();
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Badge(
-                    isLabelVisible: index == _notifIndex && _notifCount > 0,
-                    label: Text('$_notifCount'),
+                  ValueListenableBuilder<int>(
+                    valueListenable: NotificationBadge.unread,
+                    builder: (context, count, child) => Badge(
+                      isLabelVisible: index == _notifIndex && count > 0,
+                      label: Text('$count'),
+                      child: child,
+                    ),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
                       padding: const EdgeInsets.all(10),

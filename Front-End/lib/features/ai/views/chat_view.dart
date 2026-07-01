@@ -62,7 +62,7 @@ class _ChatBodyState extends State<_ChatBody> {
                     icon: const Icon(Icons.arrow_back_ios_new_outlined,
                         color: AppColor.secondary),
                   ),
-                  const Text("Chat with Ticky 🤖",
+                  const Text("Chat with Buddy 🤖",
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,

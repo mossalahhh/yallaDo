@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yallado/core/utils/app_colors.dart';
 import 'package:yallado/features/notifications/cubit/notifications_cubit.dart';
+import 'package:yallado/features/notifications/notification_router.dart';
 
 class ChildNotificationView extends StatelessWidget {
   const ChildNotificationView({super.key});
@@ -113,9 +114,19 @@ class ChildNotificationView extends StatelessWidget {
                                     ? null
                                     : const Icon(Icons.circle,
                                         size: 10, color: AppColor.secondary),
-                                onTap: () => context
-                                    .read<NotificationsCubit>()
-                                    .readOne(n.id),
+                                onTap: () {
+                                  context
+                                      .read<NotificationsCubit>()
+                                      .readOne(n.id);
+                                  final dest =
+                                      childNotificationDestination(n);
+                                  if (dest != null) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (_) => dest),
+                                    );
+                                  }
+                                },
                               ),
                             );
                           },
@@ -134,10 +145,15 @@ class ChildNotificationView extends StatelessWidget {
 
   Widget _empty(BuildContext context, String message) {
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       children: [
-        const SizedBox(height: 120),
-        Image.asset('images/nonotification.png', width: 160),
-        const SizedBox(height: 20),
+        const SizedBox(height: 140),
+        Icon(
+          Icons.notifications_none_rounded,
+          size: 96,
+          color: AppColor.secondary.withValues(alpha: 0.35),
+        ),
+        const SizedBox(height: 16),
         Center(
           child: Text(message,
               textAlign: TextAlign.center,

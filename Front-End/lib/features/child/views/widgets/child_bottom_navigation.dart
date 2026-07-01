@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/tab_scope.dart';
 import 'package:yallado/features/child/views/child_home_view.dart';
 import 'package:yallado/features/child/views/child_notification_view.dart';
 import 'package:yallado/features/child/views/child_tasks_view.dart';
 import 'package:yallado/features/child/views/profile.dart';
 import 'package:yallado/features/child/views/widgets/link_code_dialog.dart';
-import 'package:yallado/features/notifications/data/notification_service.dart';
+import 'package:yallado/features/notifications/notification_badge.dart';
 import 'package:yallado/features/user/data/user_service.dart';
 class ChildBottomNavigationBar extends StatefulWidget {
   const ChildBottomNavigationBar({super.key});
@@ -16,20 +17,13 @@ class ChildBottomNavigationBar extends StatefulWidget {
 
 class _ChildBottomNavigationBarState extends State<ChildBottomNavigationBar> {
   int currentIndex = 0;
-  int _notifCount = 0;
   static const int _notifIndex = 3;
 
   @override
   void initState() {
     super.initState();
     _checkFamilyLink();
-    _loadNotifCount();
-  }
-
-  Future<void> _loadNotifCount() async {
-    final res = await NotificationService().count();
-    final c = (res.status && res.data is Map) ? res.data['count'] : null;
-    if (mounted && c is num) setState(() => _notifCount = c.toInt());
+    NotificationBadge.refresh();
   }
 
   /// If the child isn't linked to any family yet, prompt for the family code
@@ -72,9 +66,12 @@ class _ChildBottomNavigationBarState extends State<ChildBottomNavigationBar> {
     return Scaffold(
       backgroundColor: Color(0xFFF9F7F0),
       extendBody: true,
-      body: IndexedStack(
-        index: currentIndex,
-        children: pages,
+      body: TabScope(
+        goHome: () => setState(() => currentIndex = 0),
+        child: IndexedStack(
+          index: currentIndex,
+          children: pages,
+        ),
       ),
 
       bottomNavigationBar: Container(
@@ -107,14 +104,18 @@ class _ChildBottomNavigationBarState extends State<ChildBottomNavigationBar> {
                 setState(() {
                   currentIndex = index;
                 });
-                _loadNotifCount();
+                NotificationBadge.refresh();
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Badge(
-                    isLabelVisible: index == _notifIndex && _notifCount > 0,
-                    label: Text('$_notifCount'),
+                  ValueListenableBuilder<int>(
+                    valueListenable: NotificationBadge.unread,
+                    builder: (context, count, child) => Badge(
+                      isLabelVisible: index == _notifIndex && count > 0,
+                      label: Text('$count'),
+                      child: child,
+                    ),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
                       padding: const EdgeInsets.all(10),

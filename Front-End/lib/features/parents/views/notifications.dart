@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yallado/core/helper/app_nav.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/tab_scope.dart';
 import 'package:yallado/features/notifications/cubit/notifications_cubit.dart';
+import 'package:yallado/features/notifications/notification_router.dart';
 
 class ParentNotificationsView extends StatelessWidget {
   const ParentNotificationsView({super.key});
@@ -17,7 +20,8 @@ class ParentNotificationsView extends StatelessWidget {
           backgroundColor: Colors.white,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xff6C63FF)),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => AppNav.back(context,
+                fallback: () => TabScope.of(context)?.goHome()),
           ),
           title: const Text('Notifications',
               style:
@@ -92,8 +96,16 @@ class ParentNotificationsView extends StatelessWidget {
                           ? null
                           : const Icon(Icons.circle,
                               size: 10, color: Color(0xff6C63FF)),
-                      onTap: () =>
-                          context.read<NotificationsCubit>().readOne(n.id),
+                      onTap: () {
+                        context.read<NotificationsCubit>().readOne(n.id);
+                        final dest = parentNotificationDestination(n);
+                        if (dest != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => dest),
+                          );
+                        }
+                      },
                     ),
                   );
                 },
@@ -108,9 +120,14 @@ class ParentNotificationsView extends StatelessWidget {
   Widget _empty(BuildContext context, String message) {
     return ListView(
       // ListView so RefreshIndicator/scroll works and the message centers
+      physics: const AlwaysScrollableScrollPhysics(),
       children: [
-        const SizedBox(height: 120),
-        Image.asset('images/nonotification.png', width: 180),
+        const SizedBox(height: 140),
+        Icon(
+          Icons.notifications_none_rounded,
+          size: 96,
+          color: AppColor.secondary.withValues(alpha: 0.35),
+        ),
         const SizedBox(height: 24),
         Center(
           child: Text(message,

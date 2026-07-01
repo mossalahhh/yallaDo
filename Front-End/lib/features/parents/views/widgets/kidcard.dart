@@ -101,7 +101,7 @@ class KidCard extends StatelessWidget {
                   );
                 },
                 child: const Text(
-                  "Read more",
+                  "See more",
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,

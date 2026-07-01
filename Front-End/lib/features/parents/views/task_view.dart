@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yallado/core/helper/app_nav.dart';
 import 'package:yallado/core/utils/app_colors.dart';
+import 'package:yallado/core/widgets/tab_scope.dart';
 import 'package:yallado/features/parents/views/task_details_parent.dart';
 import 'package:yallado/features/parents/views/widgets/task_card_parent.dart';
 import 'package:yallado/features/tasks/cubit/tasks_cubit/tasks_cubit.dart';
@@ -69,7 +71,8 @@ class _ParentTasksBody extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => AppNav.back(context,
+                          fallback: () => TabScope.of(context)?.goHome()),
                       icon: const Icon(Icons.arrow_back_ios,
                           color: AppColor.secondary),
                     ),

@@ -320,12 +320,16 @@ export const detailsChild = async (req, res, next) => {
       totalPoints: child.totalPoints,
       spentPoints: child.spentPoints,
     },
-    latestActivity: {
-      type: lastActivity.type,
-      source: lastActivity.source,
-      points: Math.abs(lastActivity.points),
-      createdAt: lastActivity.createdAt,
-    },
+    // A freshly linked child has no history yet, so lastActivity is null —
+    // guard against it instead of dereferencing null (which 500'd the request).
+    latestActivity: lastActivity
+      ? {
+          type: lastActivity.type,
+          source: lastActivity.source,
+          points: Math.abs(lastActivity.points),
+          createdAt: lastActivity.createdAt,
+        }
+      : null,
     taskStats: stats,
   };
 
