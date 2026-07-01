@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:yallado/features/user/data/models/user_model.dart';
 import 'package:yallado/features/user/data/user_service.dart';
+import 'package:yallado/features/user/profile_store.dart';
 import 'profile_state.dart';
 
 /// Drives the profile screen: loads `user/me`, edits name/userName, and
@@ -20,6 +21,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     if (res.status && data is Map && data['profile'] != null) {
       profile = UserProfile.fromJson(
           (data['profile'] as Map).cast<String, dynamic>());
+      // Publish so other screens (e.g. the home greeting) reflect the change.
+      ProfileStore.set(profile!);
       emit(ProfileLoaded(profile!));
     } else {
       emit(ProfileError(

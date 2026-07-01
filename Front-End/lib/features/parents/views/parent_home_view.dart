@@ -11,7 +11,8 @@ import 'package:yallado/features/parents/views/track_behavior.dart';
 import 'package:yallado/features/parents/views/widgets/kidcard.dart';
 import 'package:yallado/features/parents/views/widgets/sidemenu.dart';
 import 'package:yallado/features/user/cubit/profile_cubit/profile_cubit.dart';
-import 'package:yallado/features/user/cubit/profile_cubit/profile_state.dart';
+import 'package:yallado/features/user/data/models/user_model.dart';
+import 'package:yallado/features/user/profile_store.dart';
 
 class ParentHomeScreen extends StatefulWidget {
   const ParentHomeScreen({super.key});
@@ -112,9 +113,10 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            BlocBuilder<ProfileCubit, ProfileState>(
-              builder: (context, state) {
-                final name = context.read<ProfileCubit>().profile?.user.name;
+            ValueListenableBuilder<UserProfile?>(
+              valueListenable: ProfileStore.profile,
+              builder: (context, profile, _) {
+                final name = profile?.user.name;
                 return Text(
                   "Hello, ${name != null && name.isNotEmpty ? name : 'Parent'} !",
                   style: const TextStyle(
