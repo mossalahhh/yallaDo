@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yallado/core/helper/app_nav.dart';
 import 'package:yallado/core/utils/app_colors.dart';
 import 'package:yallado/core/widgets/tab_scope.dart';
+import 'package:yallado/features/parents/views/add_task.dart';
 import 'package:yallado/features/parents/views/task_details_parent.dart';
 import 'package:yallado/features/parents/views/widgets/task_card_parent.dart';
 import 'package:yallado/features/tasks/cubit/tasks_cubit/tasks_cubit.dart';
@@ -23,6 +24,27 @@ class ParentTasksView extends StatelessWidget {
 class _ParentTasksBody extends StatelessWidget {
   const _ParentTasksBody();
 
+  /// Who a task is for: the claimer once claimed, otherwise the assignee
+  /// (personal tasks) or "Open task" for an unclaimed public one.
+  String _childLabel(TaskModel task) {
+    if (task.claimedByName.isNotEmpty) return "Claimed by ${task.claimedByName}";
+    if (task.assignedToName.isNotEmpty) return "Assigned to ${task.assignedToName}";
+    if (task.isOpen) return "Open task";
+    return '';
+  }
+
+  /// Opens the Add-Task sheet and refreshes the list when it closes, so a newly
+  /// created task shows up right away.
+  Future<void> _openAddTask(BuildContext context) async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const AddTaskBottomSheet(),
+    );
+    if (context.mounted) context.read<TasksCubit>().loadTasks();
+  }
+
   Widget _buildTaskList(BuildContext context, List<TaskModel> tasks) {
     if (tasks.isEmpty) {
       return const Center(
@@ -41,6 +63,7 @@ class _ParentTasksBody extends StatelessWidget {
             title: task.title,
             points: task.points,
             status: task.status,
+            childLabel: _childLabel(task),
             isLast: index == tasks.length - 1,
             onTap: () async {
               await Navigator.push(
@@ -62,6 +85,16 @@ class _ParentTasksBody extends StatelessWidget {
       length: 4,
       child: Scaffold(
         backgroundColor: const Color(0xFFF9F7F0),
+        floatingActionButton: Builder(
+          builder: (context) => FloatingActionButton.extended(
+            backgroundColor: const Color(0xff4c2d19),
+            foregroundColor: Colors.white,
+            onPressed: () => _openAddTask(context),
+            icon: const Icon(Icons.add),
+            label: const Text("Add Task",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ),
         body: SafeArea(
           child: Column(
             children: [

@@ -32,43 +32,20 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
       ],
       child: Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: const Color(0xff4c2d19),
+        foregroundColor: Colors.white,
         onPressed: () {
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (_) =>  AddTaskBottomSheet(),
+            builder: (_) => const AddTaskBottomSheet(),
           );
         },
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.rectangle,
-                color: const Color(0xff4c2d19),
-                borderRadius: BorderRadiusGeometry.circular(10),
-              ),
-              child: Icon(Icons.face, size: 60, color: Colors.white),
-            ),
-            Positioned(
-              top: -12,
-              right: -12,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  border: BoxBorder.all(
-                    color: const Color(0xff4c2d19),
-                    width: 2,
-                  ),
-                ),
-                child: Icon(Icons.add, color: Color(0xff4c2d19)),
-              ),
-            ),
-          ],
-        ),
+        icon: const Icon(Icons.add),
+        label: const Text("Add Task",
+            style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       backgroundColor: Color(0xFFF9F7F0),
       body: Column(

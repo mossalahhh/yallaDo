@@ -239,6 +239,23 @@ class _ParentTaskDetailBodyState extends State<_ParentTaskDetailBody> {
                               ],
                             ),
                             const SizedBox(height: 24),
+                            if (_childLabel(task).isNotEmpty) ...[
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.person_outline,
+                                        size: 18, color: AppColor.secondary),
+                                    const SizedBox(width: 6),
+                                    Text(_childLabel(task),
+                                        style: const TextStyle(
+                                            color: AppColor.secondary,
+                                            fontWeight: FontWeight.w600)),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                            ],
                             if (task.description.isNotEmpty) ...[
                               Align(
                                 alignment: Alignment.centerLeft,
@@ -350,14 +367,61 @@ class _ParentTaskDetailBodyState extends State<_ParentTaskDetailBody> {
             scrollDirection: Axis.horizontal,
             itemCount: task.submissionImages.length,
             separatorBuilder: (_, __) => const SizedBox(width: 8),
-            itemBuilder: (_, i) => ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: AppNetworkImage(task.submissionImages[i],
-                  width: 90, height: 90),
+            itemBuilder: (context, i) => GestureDetector(
+              onTap: () => _openImage(context, task.submissionImages[i]),
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: AppNetworkImage(task.submissionImages[i],
+                        width: 90, height: 90),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(
+                      color: Colors.black45,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.zoom_in,
+                        color: Colors.white, size: 16),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  /// Opens a submission photo full-screen with pinch-to-zoom.
+  void _openImage(BuildContext context, String url) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.9),
+      builder: (dctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(12),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            InteractiveViewer(
+              minScale: 0.8,
+              maxScale: 4,
+              child: AppNetworkImage(url, fit: BoxFit.contain),
+            ),
+            IconButton(
+              onPressed: () => Navigator.pop(dctx),
+              icon: const CircleAvatar(
+                backgroundColor: Colors.black54,
+                child: Icon(Icons.close, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -440,18 +504,20 @@ class _ParentTaskDetailBodyState extends State<_ParentTaskDetailBody> {
   }
 
   Widget _buttons(BuildContext context, bool busy, String status) {
-    // Once a task is approved/rejected the decision is final, so both buttons
-    // go idle (grey + unclickable). Only the pending/submitted state is live.
+    // A task can only be approved/rejected while it's awaiting review (i.e. the
+    // child has submitted it). In every other state (pending, claimed, already
+    // approved/rejected) both buttons stay idle: grey and unclickable.
     final s = status.toLowerCase();
     final isApproved = s == 'approved';
     final isRejected = s == 'rejected';
-    final done = isApproved || isRejected;
+    final canReview = s == 'submitted';
+    final disabled = busy || !canReview;
 
     return Row(
       children: [
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: (busy || done) ? null : () => _approve(context),
+            onPressed: disabled ? null : () => _approve(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF4CAF50),
               disabledBackgroundColor: Colors.grey.shade400,
@@ -461,7 +527,7 @@ class _ParentTaskDetailBodyState extends State<_ParentTaskDetailBody> {
                   borderRadius: BorderRadius.circular(30)),
             ),
             icon: Icon(Icons.check_circle_outline,
-                color: (busy || done) ? Colors.white70 : Colors.white),
+                color: disabled ? Colors.white70 : Colors.white),
             label: Text(isApproved ? "Approved" : "Approve",
                 style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold)),
@@ -470,7 +536,7 @@ class _ParentTaskDetailBodyState extends State<_ParentTaskDetailBody> {
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: (busy || done) ? null : () => _reject(context),
+            onPressed: disabled ? null : () => _reject(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFE53935),
               disabledBackgroundColor: Colors.grey.shade400,
@@ -480,7 +546,7 @@ class _ParentTaskDetailBodyState extends State<_ParentTaskDetailBody> {
                   borderRadius: BorderRadius.circular(30)),
             ),
             icon: Icon(Icons.cancel_outlined,
-                color: (busy || done) ? Colors.white70 : Colors.white),
+                color: disabled ? Colors.white70 : Colors.white),
             label: Text(isRejected ? "Rejected" : "Reject",
                 style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold)),
@@ -488,6 +554,15 @@ class _ParentTaskDetailBodyState extends State<_ParentTaskDetailBody> {
         ),
       ],
     );
+  }
+
+  String _childLabel(TaskModel task) {
+    if (task.claimedByName.isNotEmpty) return "Claimed by ${task.claimedByName}";
+    if (task.assignedToName.isNotEmpty) {
+      return "Assigned to ${task.assignedToName}";
+    }
+    if (task.isOpen) return "Open task";
+    return '';
   }
 
   Widget _info(String title, String value) {

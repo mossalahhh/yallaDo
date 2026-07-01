@@ -8,6 +8,9 @@ class TaskCardParent extends StatelessWidget {
   final bool isLast;
   final VoidCallback onTap;
 
+  /// e.g. "Assigned to Sara" / "Claimed by Omar" / "Open task". Hidden if empty.
+  final String childLabel;
+
   const TaskCardParent({
     super.key,
     required this.title,
@@ -15,6 +18,7 @@ class TaskCardParent extends StatelessWidget {
     required this.status,
     required this.onTap,
     this.isLast = false,
+    this.childLabel = '',
   });
 
   Color get _statusColor {
@@ -126,6 +130,26 @@ class TaskCardParent extends StatelessWidget {
                               ),
                             ],
                           ),
+                          if (childLabel.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                const Icon(Icons.person_outline,
+                                    size: 14, color: AppColor.secondary),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    childLabel,
+                                    style: const TextStyle(
+                                        color: AppColor.secondary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),
