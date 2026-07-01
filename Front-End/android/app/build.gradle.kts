@@ -37,6 +37,15 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    // Name the built APK "YallaDo-<buildType>.apk" instead of "app-release.apk".
+    applicationVariants.all {
+        val variantName = name
+        outputs.all {
+            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            output.outputFileName = "YallaDo-$variantName.apk"
+        }
+    }
 }
 
 flutter {
