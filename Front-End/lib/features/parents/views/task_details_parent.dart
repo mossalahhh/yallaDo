@@ -255,7 +255,7 @@ class _ParentTaskDetailBodyState extends State<_ParentTaskDetailBody> {
                             const SizedBox(height: 16),
                             _comment(),
                             const SizedBox(height: 24),
-                            _buttons(context, busy),
+                            _buttons(context, busy, task.status),
                             const SizedBox(height: 25),
                           ],
                         ),
@@ -439,37 +439,50 @@ class _ParentTaskDetailBodyState extends State<_ParentTaskDetailBody> {
     );
   }
 
-  Widget _buttons(BuildContext context, bool busy) {
+  Widget _buttons(BuildContext context, bool busy, String status) {
+    // Once a task is approved/rejected the decision is final, so both buttons
+    // go idle (grey + unclickable). Only the pending/submitted state is live.
+    final s = status.toLowerCase();
+    final isApproved = s == 'approved';
+    final isRejected = s == 'rejected';
+    final done = isApproved || isRejected;
+
     return Row(
       children: [
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: busy ? null : () => _approve(context),
+            onPressed: (busy || done) ? null : () => _approve(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF4CAF50),
+              disabledBackgroundColor: Colors.grey.shade400,
+              disabledForegroundColor: Colors.white,
               minimumSize: const Size.fromHeight(50),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30)),
             ),
-            icon: const Icon(Icons.check_circle_outline, color: Colors.white),
-            label: const Text("Approved",
-                style: TextStyle(
+            icon: Icon(Icons.check_circle_outline,
+                color: (busy || done) ? Colors.white70 : Colors.white),
+            label: Text(isApproved ? "Approved" : "Approve",
+                style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: busy ? null : () => _reject(context),
+            onPressed: (busy || done) ? null : () => _reject(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFE53935),
+              disabledBackgroundColor: Colors.grey.shade400,
+              disabledForegroundColor: Colors.white,
               minimumSize: const Size.fromHeight(50),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30)),
             ),
-            icon: const Icon(Icons.cancel_outlined, color: Colors.white),
-            label: const Text("Rejected",
-                style: TextStyle(
+            icon: Icon(Icons.cancel_outlined,
+                color: (busy || done) ? Colors.white70 : Colors.white),
+            label: Text(isRejected ? "Rejected" : "Reject",
+                style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ),
