@@ -328,7 +328,7 @@ export const selectAvatar = async (req, res, next) => {
             points: avatar.pointsRequired,
             source: "avatar",
             type: "remove",
-            reason: `Purchase Avatar: ${avatar.title}`, // سبب الخصم
+            reason: `Purchase Avatar: ${avatar.title}`,
           },
         ],
         { session },
