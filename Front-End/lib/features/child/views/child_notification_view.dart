@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yallado/core/utils/app_colors.dart';
 import 'package:yallado/features/notifications/cubit/notifications_cubit.dart';
+import 'package:yallado/features/notifications/notification_router.dart';
 
 class ChildNotificationView extends StatelessWidget {
   const ChildNotificationView({super.key});
@@ -113,9 +114,19 @@ class ChildNotificationView extends StatelessWidget {
                                     ? null
                                     : const Icon(Icons.circle,
                                         size: 10, color: AppColor.secondary),
-                                onTap: () => context
-                                    .read<NotificationsCubit>()
-                                    .readOne(n.id),
+                                onTap: () {
+                                  context
+                                      .read<NotificationsCubit>()
+                                      .readOne(n.id);
+                                  final dest =
+                                      childNotificationDestination(n);
+                                  if (dest != null) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (_) => dest),
+                                    );
+                                  }
+                                },
                               ),
                             );
                           },

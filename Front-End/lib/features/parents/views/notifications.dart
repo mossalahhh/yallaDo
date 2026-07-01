@@ -4,6 +4,7 @@ import 'package:yallado/core/helper/app_nav.dart';
 import 'package:yallado/core/utils/app_colors.dart';
 import 'package:yallado/core/widgets/tab_scope.dart';
 import 'package:yallado/features/notifications/cubit/notifications_cubit.dart';
+import 'package:yallado/features/notifications/notification_router.dart';
 
 class ParentNotificationsView extends StatelessWidget {
   const ParentNotificationsView({super.key});
@@ -95,8 +96,16 @@ class ParentNotificationsView extends StatelessWidget {
                           ? null
                           : const Icon(Icons.circle,
                               size: 10, color: Color(0xff6C63FF)),
-                      onTap: () =>
-                          context.read<NotificationsCubit>().readOne(n.id),
+                      onTap: () {
+                        context.read<NotificationsCubit>().readOne(n.id);
+                        final dest = parentNotificationDestination(n);
+                        if (dest != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => dest),
+                          );
+                        }
+                      },
                     ),
                   );
                 },
