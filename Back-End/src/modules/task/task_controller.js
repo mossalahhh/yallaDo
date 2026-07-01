@@ -203,7 +203,11 @@ export const getTasks = async (req, res, next) => {
     .customFilter(rest)
     .customSelect(fields)
     .paginate(page)
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    // Include the child's name for assigned/claimed tasks so the UI can show
+    // who each task is for / who claimed it.
+    .populate({ path: "assignedTo", select: "userId", populate: { path: "userId", select: "name" } })
+    .populate({ path: "claimedBy", select: "userId", populate: { path: "userId", select: "name" } });
 
   return res.json({ success: true, page, data: task });
 };
@@ -211,7 +215,9 @@ export const getTasks = async (req, res, next) => {
 export const singleTask = async (req, res, next) => {
   const { taskId } = req.params;
 
-  const task = await Task.findById(taskId);
+  const task = await Task.findById(taskId)
+    .populate({ path: "assignedTo", select: "userId", populate: { path: "userId", select: "name" } })
+    .populate({ path: "claimedBy", select: "userId", populate: { path: "userId", select: "name" } });
 
   if (!task) {
     return next(new Error("invaild task Id", { cause: 404 }));
