@@ -226,15 +226,28 @@ CHORE_DESCRIPTION:
 ${task.description}
 `;
 
-  const result = await geminiVisionModel.generateContent([
-    prompt,
-    {
-      inlineData: {
-        mimeType: "image/jpeg",
-        data: base64Image,
+  // Gemini
+  if (process.env.VISION_AI_PROVIDER === "gemini") {
+    const result = await geminiVisionModel.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: base64Image,
+        },
       },
-    },
-  ]);
+    ]);
 
-  return JSON.parse(result.response.text());
+    return JSON.parse(result.response.text());
+  }
+
+  // Local Model
+  if (process.env.VISION_AI_PROVIDER === "local") {
+    const response = await axios.post(process.env.VISION_API_URL, {
+      prompt,
+      image: base64Image,
+    });
+
+    return response.data;
+  }
 };
