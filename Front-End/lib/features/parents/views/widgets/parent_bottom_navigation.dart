@@ -19,6 +19,10 @@ class _ParentBottomNavigationBarState
     extends State<ParentBottomNavigationBar> {
   int currentIndex = 2;
   static const int _notifIndex = 3;
+  static const int _tasksIndex = 0;
+  // Bumped each time the Tasks tab is opened so it rebuilds and reloads — this
+  // way a task created elsewhere (e.g. the Home button) shows up immediately.
+  int _tasksReloadKey = 0;
 
   @override
   void initState() {
@@ -26,12 +30,12 @@ class _ParentBottomNavigationBarState
     NotificationBadge.refresh();
   }
 
-  final List<Widget> pages = const [
-    ParentTasksView(),
-    AddRewardScreen(),
-    ParentHomeScreen(),
-    ParentNotificationsView(),
-  ];
+  List<Widget> get pages => [
+        ParentTasksView(key: ValueKey('tasks_$_tasksReloadKey')),
+        const AddRewardScreen(),
+        const ParentHomeScreen(),
+        const ParentNotificationsView(),
+      ];
 
   final List<IconData> icons = [
     Icons.checklist_outlined,
@@ -86,6 +90,9 @@ class _ParentBottomNavigationBarState
             return GestureDetector(
               onTap: () {
                 setState(() {
+                  // Reload the Tasks tab each time it's opened so newly created
+                  // tasks appear without a manual pull-to-refresh.
+                  if (index == _tasksIndex) _tasksReloadKey++;
                   currentIndex = index;
                 });
                 // Refresh the badge whenever tabs change (e.g. after reading).

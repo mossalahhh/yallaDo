@@ -31,10 +31,46 @@ class _HomeworkDetailBody extends StatefulWidget {
 class _HomeworkDetailBodyState extends State<_HomeworkDetailBody> {
   final List<XFile> _picked = [];
 
-  Future<void> _pickImage() async {
+  Future<void> _pickFrom(ImageSource source) async {
     final img =
-        await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 70);
+        await ImagePicker().pickImage(source: source, imageQuality: 70);
     if (img != null) setState(() => _picked.add(img));
+  }
+
+  /// Lets the child either snap a new photo or pick an existing one.
+  void _chooseSource() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFFF9F7F0),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined,
+                  color: AppColor.secondary),
+              title: const Text("Take a photo"),
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                _pickFrom(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined,
+                  color: AppColor.secondary),
+              title: const Text("Choose from gallery"),
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                _pickFrom(ImageSource.gallery);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
   }
 
   void _submit(BuildContext context, TaskModel task) {
@@ -232,7 +268,7 @@ class _HomeworkDetailBodyState extends State<_HomeworkDetailBody> {
                   child: _Thumb(file: f),
                 )),
             GestureDetector(
-              onTap: _pickImage,
+              onTap: _chooseSource,
               child: Container(
                 width: 70,
                 height: 70,

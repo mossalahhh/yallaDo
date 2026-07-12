@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yallado/features/child/views/widgets/greeting_card.dart';
 import 'package:yallado/features/child/views/widgets/home_feature_card.dart';
+import 'package:yallado/features/user/cubit/profile_cubit/profile_cubit.dart';
 
 class ChildHomeView extends StatelessWidget {
   const ChildHomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    // Load the profile so the greeting can show the child's name (published to
+    // ProfileStore) and stay in sync when it's edited.
+    return BlocProvider(
+      create: (_) => ProfileCubit()..loadProfile(),
+      child: SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
         child: Column(
@@ -52,6 +58,7 @@ class ChildHomeView extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

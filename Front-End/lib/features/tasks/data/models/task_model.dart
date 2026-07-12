@@ -9,6 +9,9 @@ class TaskModel {
   final String type; // personal | open
   final String status; // pending | submitted | approved | rejected | ...
   final String assignedTo;
+  final String assignedToName; // populated child name (personal tasks)
+  final String claimedBy;
+  final String claimedByName; // populated child name (once claimed)
   final String createdBy;
   final String createdAt;
   final String dueDate;
@@ -33,6 +36,9 @@ class TaskModel {
     required this.type,
     required this.status,
     required this.assignedTo,
+    this.assignedToName = '',
+    this.claimedBy = '',
+    this.claimedByName = '',
     required this.createdBy,
     required this.createdAt,
     required this.dueDate,
@@ -53,6 +59,18 @@ class TaskModel {
 
   static int _toInt(dynamic v) =>
       v is num ? v.toInt() : (int.tryParse('$v') ?? 0);
+
+  // assignedTo / claimedBy come back either as a raw id string or, when the
+  // backend populates them, as { _id, userId: { name } }.
+  static String _refId(dynamic v) =>
+      v is Map ? (v['_id'] ?? '').toString() : (v ?? '').toString();
+
+  static String _refName(dynamic v) {
+    if (v is Map && v['userId'] is Map) {
+      return ((v['userId'] as Map)['name'] ?? '').toString();
+    }
+    return '';
+  }
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     final req = (json['requirements'] as Map?)?.cast<String, dynamic>() ?? const {};
@@ -77,7 +95,10 @@ class TaskModel {
       category: (json['category'] ?? '').toString(),
       type: (json['type'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
-      assignedTo: (json['assignedTo'] ?? '').toString(),
+      assignedTo: _refId(json['assignedTo']),
+      assignedToName: _refName(json['assignedTo']),
+      claimedBy: _refId(json['claimedBy']),
+      claimedByName: _refName(json['claimedBy']),
       createdBy: (json['createdBy'] ?? '').toString(),
       createdAt: (json['createdAt'] ?? '').toString(),
       dueDate: (json['dueDate'] ?? '').toString(),

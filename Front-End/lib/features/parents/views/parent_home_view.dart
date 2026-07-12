@@ -11,7 +11,8 @@ import 'package:yallado/features/parents/views/track_behavior.dart';
 import 'package:yallado/features/parents/views/widgets/kidcard.dart';
 import 'package:yallado/features/parents/views/widgets/sidemenu.dart';
 import 'package:yallado/features/user/cubit/profile_cubit/profile_cubit.dart';
-import 'package:yallado/features/user/cubit/profile_cubit/profile_state.dart';
+import 'package:yallado/features/user/data/models/user_model.dart';
+import 'package:yallado/features/user/profile_store.dart';
 
 class ParentHomeScreen extends StatefulWidget {
   const ParentHomeScreen({super.key});
@@ -32,43 +33,20 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
       ],
       child: Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: const Color(0xff4c2d19),
+        foregroundColor: Colors.white,
         onPressed: () {
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (_) =>  AddTaskBottomSheet(),
+            builder: (_) => const AddTaskBottomSheet(),
           );
         },
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.rectangle,
-                color: const Color(0xff4c2d19),
-                borderRadius: BorderRadiusGeometry.circular(10),
-              ),
-              child: Icon(Icons.face, size: 60, color: Colors.white),
-            ),
-            Positioned(
-              top: -12,
-              right: -12,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  border: BoxBorder.all(
-                    color: const Color(0xff4c2d19),
-                    width: 2,
-                  ),
-                ),
-                child: Icon(Icons.add, color: Color(0xff4c2d19)),
-              ),
-            ),
-          ],
-        ),
+        icon: const Icon(Icons.add),
+        label: const Text("Add Task",
+            style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       backgroundColor: Color(0xFFF9F7F0),
       body: Column(
@@ -135,9 +113,10 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            BlocBuilder<ProfileCubit, ProfileState>(
-              builder: (context, state) {
-                final name = context.read<ProfileCubit>().profile?.user.name;
+            ValueListenableBuilder<UserProfile?>(
+              valueListenable: ProfileStore.profile,
+              builder: (context, profile, _) {
+                final name = profile?.user.name;
                 return Text(
                   "Hello, ${name != null && name.isNotEmpty ? name : 'Parent'} !",
                   style: const TextStyle(
