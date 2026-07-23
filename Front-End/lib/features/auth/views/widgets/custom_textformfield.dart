@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final String hint;
   final IconData icon;
   final bool isPassword;
@@ -23,23 +23,38 @@ class CustomTextField extends StatelessWidget {
   });
 
   @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  bool _obscure = true;
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
-        controller: controller,
-        validator: validator,
-        keyboardType: keyboardType,
-        readOnly: readOnly,
-        onTap: onTap,
-        obscureText: isPassword,
+        controller: widget.controller,
+        validator: widget.validator,
+        keyboardType: widget.keyboardType,
+        readOnly: widget.readOnly,
+        onTap: widget.onTap,
+        obscureText: widget.isPassword && _obscure,
         decoration: InputDecoration(
-          hintText: hint,
+          hintText: widget.hint,
           hintStyle: const TextStyle(
               color: Color(0xFF8B7F74),
               fontSize: 16,
               fontWeight: FontWeight.w600),
-          suffixIcon: Icon(icon, color: const Color(0xFF8B7F74)),
+          suffixIcon: widget.isPassword
+              ? IconButton(
+                  icon: Icon(
+                    _obscure ? Icons.visibility_off : Icons.visibility,
+                    color: const Color(0xFF8B7F74),
+                  ),
+                  onPressed: () => setState(() => _obscure = !_obscure),
+                )
+              : Icon(widget.icon, color: const Color(0xFF8B7F74)),
           border:
               OutlineInputBorder(borderRadius: BorderRadius.circular(25)),
           disabledBorder: OutlineInputBorder(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yallado/features/auth/views/login_parent_view.dart';
+import 'package:yallado/features/auth/views/signup_view.dart';
 
 class OnboardPage extends StatelessWidget {
   final String image;
@@ -46,7 +46,7 @@ class OnboardPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ParentLoginScreen()),
+                  MaterialPageRoute(builder: (context) => const SignupScreen()),
                 );
               },
               style: ElevatedButton.styleFrom(
