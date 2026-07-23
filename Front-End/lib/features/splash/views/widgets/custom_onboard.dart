@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yallado/features/auth/views/login_parent_view.dart';
 import 'package:yallado/features/auth/views/signup_view.dart';
 
 class OnboardPage extends StatelessWidget {
@@ -41,7 +42,39 @@ class OnboardPage extends StatelessWidget {
               style: TextStyle(fontSize: 17, color: Color(0xFF8B7F74),fontWeight: FontWeight.w400),
             ),
           if (showButtons) ...[
-            SizedBox(height: 40),
+            SizedBox(height: 28),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Already have an account? ",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF8B7F74),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ParentLoginScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    "Login",
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF644B3A),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
