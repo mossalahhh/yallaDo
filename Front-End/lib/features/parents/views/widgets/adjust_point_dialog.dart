@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../data/models/child_model.dart';
 
 /// Shows the adjust-points dialog. [onConfirm] receives the API-ready values:
 /// `type` is `add`/`remove`, plus the points and reason.
+/// [allowance] (from child details) shows the daily budget hint + reset timer.
 void showAdjustPointsDialog(
   BuildContext context, {
   required void Function(String type, int points, String reason) onConfirm,
+  AdjustAllowance? allowance,
 }) {
   String selectedType = 'add';
   final TextEditingController reasonController = TextEditingController();
@@ -34,6 +39,10 @@ void showAdjustPointsDialog(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (allowance != null && allowance.dailyLimit > 0) ...[
+                    _AllowanceHint(allowance: allowance),
+                    const SizedBox(height: 16),
+                  ],
                   const Text(
                     "Type",
                     style: TextStyle(
@@ -112,6 +121,20 @@ void showAdjustPointsDialog(
                       );
                       return;
                     }
+                    // Daily-budget check before hitting the server.
+                    if (allowance != null &&
+                        allowance.dailyLimit > 0 &&
+                        points > allowance.remainingToday) {
+                      final left = allowance.remainingToday;
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        SnackBar(
+                          content: Text(left > 0
+                              ? "You can only adjust $left more point${left == 1 ? '' : 's'} today (limit ${allowance.dailyLimit}/day)"
+                              : "Daily limit of ${allowance.dailyLimit} points reached — resets at midnight"),
+                        ),
+                      );
+                      return;
+                    }
                     Navigator.pop(dialogContext);
                     onConfirm(selectedType, points, reason);
                   },
@@ -167,6 +190,106 @@ class _TypeButton extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Daily-budget banner: limit, points left today, and a live countdown to the
+/// midnight reset once part of the budget is used.
+class _AllowanceHint extends StatefulWidget {
+  final AdjustAllowance allowance;
+
+  const _AllowanceHint({required this.allowance});
+
+  @override
+  State<_AllowanceHint> createState() => _AllowanceHintState();
+}
+
+class _AllowanceHintState extends State<_AllowanceHint> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Refresh the countdown once a minute.
+    _timer = Timer.periodic(
+        const Duration(minutes: 1), (_) => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String get _untilReset {
+    final now = DateTime.now();
+    final midnight = DateTime(now.year, now.month, now.day + 1);
+    final d = midnight.difference(now);
+    final h = d.inHours;
+    final m = d.inMinutes % 60;
+    if (h > 0) return "${h}h ${m}m";
+    return m > 0 ? "${m}m" : "less than a minute";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final a = widget.allowance;
+    final exhausted = a.remainingToday <= 0;
+    final color = exhausted ? Colors.red.shade700 : AppColor.secondary;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.info_outline, size: 18, color: color),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  "Daily limit: ${a.dailyLimit} points (add + remove)",
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            exhausted
+                ? "Limit reached — you can't adjust more points today"
+                : "You can still adjust ${a.remainingToday} point${a.remainingToday == 1 ? '' : 's'} today",
+            style: TextStyle(color: color, fontSize: 13),
+          ),
+          if (a.usedToday > 0) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(Icons.schedule, size: 15, color: color),
+                const SizedBox(width: 4),
+                Text(
+                  "Resets in $_untilReset",
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

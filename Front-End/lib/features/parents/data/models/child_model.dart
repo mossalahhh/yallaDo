@@ -43,6 +43,7 @@ class ChildDetails {
   final int spentPoints;
   final ActivityEntry? latestActivity;
   final TaskStats taskStats;
+  final AdjustAllowance? adjustAllowance;
 
   const ChildDetails({
     required this.childId,
@@ -53,6 +54,7 @@ class ChildDetails {
     required this.spentPoints,
     required this.latestActivity,
     required this.taskStats,
+    this.adjustAllowance,
   });
 
   factory ChildDetails.fromJson(Map<String, dynamic> json) {
@@ -60,6 +62,8 @@ class ChildDetails {
     final activity =
         (json['latestActivity'] as Map?)?.cast<String, dynamic>();
     final stats = (json['taskStats'] as Map?)?.cast<String, dynamic>() ?? const {};
+    final allowance =
+        (json['adjustAllowance'] as Map?)?.cast<String, dynamic>();
     return ChildDetails(
       childId: (child['childId'] ?? '').toString(),
       name: (child['name'] ?? '').toString(),
@@ -70,8 +74,30 @@ class ChildDetails {
       latestActivity:
           activity == null ? null : ActivityEntry.fromJson(activity),
       taskStats: TaskStats.fromJson(stats),
+      adjustAllowance:
+          allowance == null ? null : AdjustAllowance.fromJson(allowance),
     );
   }
+}
+
+/// Daily manual points budget (add + remove combined) from `parent/:id/details`.
+class AdjustAllowance {
+  final int dailyLimit;
+  final int usedToday;
+  final int remainingToday;
+
+  const AdjustAllowance({
+    required this.dailyLimit,
+    required this.usedToday,
+    required this.remainingToday,
+  });
+
+  factory AdjustAllowance.fromJson(Map<String, dynamic> json) =>
+      AdjustAllowance(
+        dailyLimit: _toInt(json['dailyLimit']),
+        usedToday: _toInt(json['usedToday']),
+        remainingToday: _toInt(json['remainingToday']),
+      );
 }
 
 class ActivityEntry {

@@ -203,9 +203,19 @@ export const bounsPoints = async (req, res, next) => {
 
     const usedPoints = totalDay[0]?.total || 0;
 
-    if (usedPoints + points > Number(process.env.DAILY_LIMIT)) {
+    const dailyLimit = Number(process.env.DAILY_LIMIT);
+    if (usedPoints + points > dailyLimit) {
       await session.abortTransaction();
-      return next(new Error("Daily manual points limit exceeded"));
+      const remaining = Math.max(dailyLimit - usedPoints, 0);
+      // 400 (not a bare Error → 500) + tell the parent exactly what's left
+      return next(
+        new Error(
+          remaining > 0
+            ? `Daily limit is ${dailyLimit} points: you can only adjust ${remaining} more today. Resets at midnight.`
+            : `Daily limit of ${dailyLimit} points reached. Try again after midnight.`,
+          { cause: 400 },
+        ),
+      );
     }
 
     //update points in child
@@ -311,6 +321,24 @@ export const detailsChild = async (req, res, next) => {
     pending: 0,
   };
 
+  // Daily manual-adjustment allowance (add + remove share the same budget),
+  // so the app can show "you can only adjust N more today" before submitting.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const usedAgg = await History.aggregate([
+    {
+      $match: {
+        childId: child._id,
+        parentId: parent._id,
+        source: "manual",
+        createdAt: { $gte: today },
+      },
+    },
+    { $group: { _id: null, total: { $sum: { $abs: "$points" } } } },
+  ]);
+  const dailyLimit = Number(process.env.DAILY_LIMIT) || 0; // 0 = no limit configured
+  const usedToday = usedAgg[0]?.total || 0;
+
   const resObject = {
     child: {
       childId: child._id,
@@ -331,6 +359,11 @@ export const detailsChild = async (req, res, next) => {
         }
       : null,
     taskStats: stats,
+    adjustAllowance: {
+      dailyLimit,
+      usedToday,
+      remainingToday: Math.max(dailyLimit - usedToday, 0),
+    },
   };
 
   return res.status(200).json({ success: true, results: resObject });

@@ -142,6 +142,7 @@ class _MoreDetailsBody extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () => showAdjustPointsDialog(
                         context,
+                        allowance: cubit.details?.adjustAllowance,
                         onConfirm: (type, points, reason) {
                           cubit.adjustPoints(
                               type: type, points: points, reason: reason);
